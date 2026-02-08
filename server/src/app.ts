@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 
+import authRoutes from "./routes/auth.routes";
+
 const app = express();
 
 app.use(cors());
@@ -15,6 +17,8 @@ app.get("/health", (req, res) => {
     message: `Backend server running successfully on ${PORT}`,
   });
 });
+
+app.use("/auth", authRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
