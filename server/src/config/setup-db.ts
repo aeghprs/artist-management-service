@@ -37,7 +37,7 @@ async function setupDatabase(): Promise<void> {
     await client.end();
 
     console.log("\n Database setup complete!");
-    console.log(`\nYou can now start the server with: npm start`);
+    console.log(`\nYou can now start the server with: npm run dev`);
   } catch (error: any) {
     console.error("Database setup failed:", error.message);
 

@@ -1,9 +1,15 @@
-import { Pool, QueryResult, QueryResultRow } from "pg";
+import pkg, { Pool, QueryResult, QueryResultRow } from "pg";
 import * as fs from "fs";
 import * as path from "path";
 import dotenv from "dotenv";
 
+const { types } = pkg;
+
 dotenv.config();
+
+// Force DATE columns to be returned as strings
+types.setTypeParser(1082, (val: string) => val);
+types.setTypeParser(1184, (val: string) => val);
 
 // Create connection pool
 export const pool = new Pool({
