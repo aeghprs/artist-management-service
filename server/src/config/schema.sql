@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
     gender gender_type NOT NULL DEFAULT 'o',
     address VARCHAR(500) NOT NULL,
     role user_role_type NOT NULL DEFAULT 'artist',
+    is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS artists (
     address VARCHAR(500) NOT NULL,
     first_release_year INTEGER NOT NULL,
     no_of_albums_released INTEGER NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -56,6 +58,7 @@ CREATE TABLE IF NOT EXISTS songs (
     title VARCHAR(255) NOT NULL,
     album_name VARCHAR(255) NOT NULL,
     genre genre_type NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE
