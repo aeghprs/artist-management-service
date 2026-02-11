@@ -10,9 +10,13 @@ import {
   paginationQuerySchema,
 } from "../schemas/artist.schema";
 import { validateQuery } from "../middlewares/validateQueryParams";
+import upload from "../middlewares/multer.upload";
+import ArtistBatchController from "../controller/artistBatch.controller";
+import { validateArtistCsv } from "../middlewares/validate.batchArtists";
 
 const router = Router();
 const artistController = new ArtistController();
+const artistBatchController = new ArtistBatchController();
 
 router.use(verifyJWT);
 
@@ -53,6 +57,20 @@ router.delete(
   "/:id",
   verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
   artistController.deleteArtist,
+);
+
+router.get(
+  "/export",
+  verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
+  artistBatchController.exportCSV,
+);
+
+router.post(
+  "/import",
+  upload.single("file"),
+  verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
+  validateArtistCsv,
+  artistBatchController.importCSV,
 );
 
 export default router;

@@ -10,3 +10,9 @@ export interface IUser {
   created_at?: string;
   dob: string;
 }
+
+export enum GenderType {
+  MALE = "m",
+  FEMALE = "f",
+  OTHER = "o",
+}

@@ -10,4 +10,13 @@ export interface Artist {
   updated_at: string;
 }
 
-export type IBatchArtist = Omit<Artist, "created-at" | "updated_at" | "id">;
+export type IBatchArtist = Omit<Artist, "created_at" | "updated_at" | "id">;
+
+export interface ArtistCSVRow {
+  name: string;
+  dob: string;
+  gender: string;
+  address: string;
+  first_release_year: string;
+  no_of_albums_released: string;
+}

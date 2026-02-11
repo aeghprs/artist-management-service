@@ -52,7 +52,7 @@ class ArtistService {
              created_at, updated_at
       FROM artists
       WHERE is_active = $3
-      ORDER BY created_at DESC
+      ORDER BY id DESC
       LIMIT $1 OFFSET $2
       `,
       [limit, offset, true],
