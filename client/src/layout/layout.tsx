@@ -5,6 +5,7 @@ import {
   AppShell,
   Avatar,
   Burger,
+  Flex,
   Group,
   NavLink,
   ScrollArea,
@@ -45,7 +46,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       }}
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
+        <Group h="100%" gap="md">
           <Burger
             opened={mobileOpened}
             onClick={toggleMobile}
@@ -60,17 +61,25 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             size="md"
             color="primary.5"
           />
-          <ThemeIcon size={36} radius="md" variant="filled">
-            <IconMusic size={28} />
-          </ThemeIcon>
-          <Text
-            size="md"
-            tt="uppercase"
-            style={{ letterSpacing: 2 }}
-            color="primary.5"
+          <Flex
+            gap="md"
+            justify="flex-start"
+            align="center"
+            direction="row"
+            wrap="wrap"
           >
-            Artist Management System
-          </Text>
+            <ThemeIcon size={36} radius="md" variant="filled">
+              <IconMusic size={28} />
+            </ThemeIcon>
+            <Text
+              size="md"
+              tt="uppercase"
+              style={{ letterSpacing: 2 }}
+              color="primary.5"
+            >
+              Artist Management System
+            </Text>
+          </Flex>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="sm">

@@ -12,13 +12,14 @@ import { getUserData } from "api/auth.api";
 import { DSNotification } from "components/ui/notifications";
 
 import useLocalStorage from "hook/useLocalStorage";
+import type { UserRole } from "../types/types";
 
 interface User {
   id: string;
   first_name: string;
   last_name: string;
   email: string;
-  role: string;
+  role: UserRole;
 }
 
 interface AuthContextType {

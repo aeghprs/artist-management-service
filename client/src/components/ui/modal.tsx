@@ -69,7 +69,7 @@ export const DSModal: React.FC<DSModalProps> = ({
         {!hidePrimaryButton && (
           <DSButton
             variant="filled"
-            color="danger"
+            color="danger.4"
             onClick={handlePrimaryClick}
             loading={primaryButtonLoading}
             disabled={primaryButtonDisabled}
