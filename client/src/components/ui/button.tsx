@@ -14,6 +14,8 @@ import {
   IconEdit,
   IconDownload,
   IconUpload,
+  IconLoader,
+  IconLogout,
 } from "@tabler/icons-react";
 
 type IconType =
@@ -26,13 +28,15 @@ type IconType =
   | "trash"
   | "edit"
   | "download"
-  | "upload";
+  | "upload"
+  | "logout";
 
 type DSButtonProps = PolymorphicComponentProps<
   "button",
   Omit<ButtonProps, "leftSection" | "rightSection"> & {
     leftIcon?: IconType;
     rightIcon?: IconType;
+    isPending?: boolean;
   }
 >;
 
@@ -47,12 +51,15 @@ const iconMap = {
   edit: IconEdit,
   download: IconDownload,
   upload: IconUpload,
+  loading: IconLoader,
+  logout: IconLogout,
 };
 
 export const DSButton: React.FC<DSButtonProps> = ({
   leftIcon,
   rightIcon,
   children,
+  isPending = false,
   ...props
 }) => {
   const LeftIconComponent = leftIcon ? iconMap[leftIcon] : null;
@@ -60,6 +67,8 @@ export const DSButton: React.FC<DSButtonProps> = ({
 
   return (
     <Button
+      loading={isPending}
+      disabled={isPending || props.disabled}
       leftSection={
         LeftIconComponent ? <LeftIconComponent size={18} /> : undefined
       }

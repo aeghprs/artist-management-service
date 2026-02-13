@@ -6,16 +6,16 @@ export const userRegistrationSchema = z.object({
       required_error: "First name is required",
     })
     .trim()
-    .min(2, "First name must be 2-100 characters")
-    .max(100, "First name must be 2-100 characters"),
+    .min(2, "First name must be between 2-100 characters")
+    .max(100, "First name must be between 2-100 characters"),
 
   last_name: z
     .string({
       required_error: "Last name is required",
     })
     .trim()
-    .min(2, "Last name must be 2-100 characters")
-    .max(100, "Last name must be 2-100 characters"),
+    .min(2, "Last name must be between 2-100 characters")
+    .max(100, "Last name must be between 2-100 characters"),
 
   email: z
     .string({
