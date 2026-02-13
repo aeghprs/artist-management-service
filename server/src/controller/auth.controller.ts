@@ -50,19 +50,13 @@ class AuthController {
       const { user, accessToken, refreshToken } =
         await authService.loginUser(credentials);
 
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
       res.status(200).json({
         success: true,
         message: "Login successful",
         data: {
           user,
           accessToken,
+          refreshToken,
         },
       });
     } catch (error: any) {
@@ -79,41 +73,28 @@ class AuthController {
 
   async refresh(req: Request, res: Response): Promise<void> {
     try {
-      const refreshToken = req.cookies?.refreshToken;
+      const data = req.body;
 
-      if (!refreshToken) {
+      if (!data.refreshToken) {
         res
           .status(401)
           .json({ success: false, message: "Refresh token missing" });
         return;
       }
 
-      const accessToken = await authService.refreshAccessToken(refreshToken);
+      const { accessToken, newRefreshToken } =
+        await authService.refreshAccessToken(data.refreshToken);
 
       res.status(200).json({
         success: true,
         accessToken,
+        refreshToken: newRefreshToken,
       });
     } catch {
       res.status(401).json({
         success: false,
         message: "Invalid or expired refresh token",
       });
-    }
-  }
-
-  async logout(req: Request, res: Response): Promise<void> {
-    try {
-      res.clearCookie("refreshToken", {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-      });
-
-      res.json({ success: true, message: "Logged out successfully" });
-    } catch (error) {
-      console.error("Logout error:", error);
-      res.status(500).json({ success: false, error: "Server error" });
     }
   }
 

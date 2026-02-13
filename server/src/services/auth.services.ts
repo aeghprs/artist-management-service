@@ -20,7 +20,7 @@ class AuthService {
   private readonly JWT_SECRET = process.env.JWT_SECRET!;
   private readonly JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
   private readonly ACCESS_TOKEN_EXPIRY = "15m";
-  private readonly REFRESH_TOKEN_EXPIRY = "7d";
+  private readonly REFRESH_TOKEN_EXPIRY = "1d";
 
   private generateAccessToken(payload: {
     id: number;
@@ -32,12 +32,16 @@ class AuthService {
     });
   }
 
-  private generateRefreshToken(id: number): string {
-    const payload = {
-      id,
+  private generateRefreshToken(payload: {
+    id: number;
+    email: string;
+    role: string;
+  }): string {
+    const tokenPayload = {
+      payload,
       tokenId: crypto.randomBytes(16).toString("hex"),
     };
-    return jwt.sign(payload, this.JWT_REFRESH_SECRET, {
+    return jwt.sign(tokenPayload, this.JWT_REFRESH_SECRET, {
       expiresIn: this.REFRESH_TOKEN_EXPIRY,
     });
   }
@@ -102,7 +106,7 @@ class AuthService {
     };
 
     const accessToken = this.generateAccessToken(payload);
-    const refreshToken = this.generateRefreshToken(user.id);
+    const refreshToken = this.generateRefreshToken(payload);
 
     return {
       user: payload,
@@ -111,19 +115,33 @@ class AuthService {
     };
   }
 
-  public async refreshAccessToken(refreshToken: string): Promise<string> {
+  public async refreshAccessToken(refreshToken: string): Promise<{
+    accessToken: string;
+    newRefreshToken: string;
+  }> {
     try {
       const decoded = jwt.verify(refreshToken, this.JWT_REFRESH_SECRET) as {
-        id: number;
-        email: string;
-        role: User["role"];
+        payload: {
+          id: number;
+          email: string;
+          role: User["role"];
+        };
       };
 
-      return this.generateAccessToken({
-        id: decoded.id,
-        email: decoded.email,
-        role: decoded.role,
+      console.log("decoded", decoded);
+
+      const accessToken = this.generateAccessToken({
+        id: decoded.payload.id,
+        email: decoded.payload.email,
+        role: decoded.payload.role,
       });
+      const newRefreshToken = this.generateRefreshToken({
+        id: decoded.payload.id,
+        email: decoded.payload.email,
+        role: decoded.payload.role,
+      });
+
+      return { accessToken, newRefreshToken };
     } catch (err) {
       throw new Error("Invalid refresh token");
     }
