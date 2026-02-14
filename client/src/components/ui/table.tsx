@@ -1,75 +1,139 @@
-import { Table, ScrollArea, Pagination } from "@mantine/core";
-import { useState } from "react";
+import {
+  Table,
+  ScrollArea,
+  Select,
+  Group,
+  Text,
+  ActionIcon,
+  Center,
+} from "@mantine/core";
+import { IconEdit, IconTrash, IconInbox } from "@tabler/icons-react";
+import { DSPagination } from "./pagination";
 
-interface TableData {
-  [key: string]: string | number;
+interface Column<T> {
+  label: string;
+  key: keyof T;
+  render?: (row: T) => React.ReactNode;
 }
 
-interface DSTableProps {
-  data: TableData[];
+interface DSTableProps<T> {
+  data: T[];
+  columns: Column<T>[];
+  totalRecords?: number;
+  page?: number;
+  onPageChange: (page: number) => void;
   itemsPerPage?: number;
+  onItemsPerPageChange?: (value: number) => void;
   withPagination?: boolean;
+  onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
+  loading?: boolean;
 }
 
-export const DSTable: React.FC<DSTableProps> = ({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function DSTable<T extends Record<string, any>>({
   data,
-  itemsPerPage = 5,
+  columns,
+  totalRecords = 0,
+  page = 1,
+  onPageChange,
+  itemsPerPage = 10,
+  onItemsPerPageChange,
   withPagination = false,
-}) => {
-  const [activePage, setActivePage] = useState(1);
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="text-gray-500 text-center p-4">No data available</div>
-    );
-  }
-
-  const headers = Object.keys(data[0]);
-
-  // Calculate pagination
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const startIndex = (activePage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedData = withPagination
-    ? data.slice(startIndex, endIndex)
-    : data;
-
-  const rows = paginatedData.map((row, index) => (
-    <Table.Tr key={index}>
-      {headers.map((header) => (
-        <Table.Td key={header}>{row[header]}</Table.Td>
-      ))}
-    </Table.Tr>
-  ));
+  onEdit,
+  onDelete,
+  loading = false,
+}: DSTableProps<T>) {
+  const totalPages = Math.ceil(totalRecords / itemsPerPage);
 
   return (
-    <div className="space-y-4">
+    <>
       <ScrollArea>
-        <Table striped highlightOnHover withTableBorder withColumnBorders>
+        <Table highlightOnHover withColumnBorders withTableBorder>
           <Table.Thead>
             <Table.Tr>
-              {headers.map((header) => (
-                <Table.Th key={header} className="capitalize">
-                  {header.replace(/([A-Z])/g, " $1").trim()}
-                </Table.Th>
+              {columns.map((col) => (
+                <Table.Th key={col.label}>{col.label}</Table.Th>
               ))}
+
+              {(onEdit || onDelete) && <Table.Th ta="center">Actions</Table.Th>}
             </Table.Tr>
           </Table.Thead>
-          <Table.Tbody>{rows}</Table.Tbody>
+
+          <Table.Tbody>
+            {!loading && data.length === 0 && (
+              <Table.Tr h={50}>
+                <Table.Td colSpan={columns.length + 1}>
+                  <Center py="xl">
+                    <div className="text-center space-y-2">
+                      <IconInbox size={40} className="mx-auto opacity-40" />
+                      <Text fw={500}>No records found</Text>
+                      <Text size="sm" c="dimmed">
+                        Try adjusting filters or add new data.
+                      </Text>
+                    </div>
+                  </Center>
+                </Table.Td>
+              </Table.Tr>
+            )}
+
+            {data.map((row, index) => (
+              <Table.Tr key={index}>
+                {columns.map((col) => (
+                  <Table.Td key={String(col.key)}>
+                    {col.render ? col.render(row) : row[col.key]}
+                  </Table.Td>
+                ))}
+
+                {(onEdit || onDelete) && (
+                  <Table.Td>
+                    <Group justify="center" gap="xs">
+                      {onEdit && (
+                        <ActionIcon
+                          variant="light"
+                          color="blue"
+                          onClick={() => onEdit(row)}
+                        >
+                          <IconEdit size={16} />
+                        </ActionIcon>
+                      )}
+
+                      {onDelete && (
+                        <ActionIcon
+                          variant="light"
+                          color="red"
+                          onClick={() => onDelete(row)}
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      )}
+                    </Group>
+                  </Table.Td>
+                )}
+              </Table.Tr>
+            ))}
+          </Table.Tbody>
         </Table>
       </ScrollArea>
 
-      {withPagination && totalPages > 1 && (
-        <div className="flex justify-center">
-          <Pagination
+      {withPagination && (
+        <Group justify="space-between" mt="md">
+          {onItemsPerPageChange && (
+            <Select
+              w={120}
+              value={String(itemsPerPage)}
+              onChange={(val) => onItemsPerPageChange(Number(val))}
+              data={["10", "20", "50"]}
+            />
+          )}
+
+          <DSPagination
             total={totalPages}
-            value={activePage}
-            onChange={setActivePage}
-            color="primary"
-            size="md"
+            value={page}
+            onChange={onPageChange}
           />
-        </div>
+        </Group>
       )}
-    </div>
+      </>
   );
-};
+}

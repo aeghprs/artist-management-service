@@ -1,7 +1,8 @@
 import {
   IconLayoutDashboard,
   IconUsers,
-  IconUser,
+  IconMicrophone2,
+  IconTrendingUp,
 } from "@tabler/icons-react";
 
 export const NAV_ITEMS = [
@@ -19,8 +20,14 @@ export const NAV_ITEMS = [
   },
   {
     label: "Artists",
-    icon: IconUser,
+    icon: IconMicrophone2,
     link: "/artists",
     roles: ["super_admin", "artist_manager"],
+  },
+  {
+    label: "Songs",
+    icon: IconTrendingUp,
+    link: "/artists",
+    roles: ["artist"],
   },
 ];

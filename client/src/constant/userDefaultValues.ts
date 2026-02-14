@@ -1,16 +1,22 @@
+import type { User } from "../types/types";
+
 export const LOGIN_DEFAULT_VALUES = {
   email: "",
   password: "",
 };
 
-export const USER_DEFAULT_VALUES = {
+export const USER_VALUES: Omit<User, "id" | "email" | "password"> = {
   first_name: "",
   last_name: "",
   phone: "",
   dob: "",
   address: "",
-  gender: "",
-  role: "",
+  gender: "m",
+  role: "artist",
+};
+
+export const USER_DEFAULT_VALUES = {
+  ...USER_VALUES,
   ...LOGIN_DEFAULT_VALUES,
 };
 

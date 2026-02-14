@@ -1,6 +1,6 @@
 import axios from "axios";
-import type { User } from "../types/types";
 import api from "./api";
+import type { User } from "types/types";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -9,7 +9,7 @@ export const login = async (data: { email: string; password: string }) => {
   return response.data;
 };
 
-export const register = async (data: User) => {
+export const register = async (data: Omit<User, "id">) => {
   const response = await axios.post(`${BASE_URL}/auth/register`, data);
   return response.data;
 };

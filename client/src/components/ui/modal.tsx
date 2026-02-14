@@ -4,7 +4,7 @@ import { DSButton } from "./button";
 interface DSModalProps extends Omit<ModalProps, "onClose"> {
   opened: boolean;
   onClose: () => void;
-  title: string;
+  title?: string;
   primaryButtonText?: string;
   secondaryButtonText?: string;
   onPrimaryClick?: () => void;
@@ -16,6 +16,7 @@ interface DSModalProps extends Omit<ModalProps, "onClose"> {
   hidePrimaryButton?: boolean;
   hideSecondaryButton?: boolean;
   children: React.ReactNode;
+  isDestructiveModal?: boolean;
 }
 
 export const DSModal: React.FC<DSModalProps> = ({
@@ -33,6 +34,7 @@ export const DSModal: React.FC<DSModalProps> = ({
   hidePrimaryButton = false,
   hideSecondaryButton = false,
   children,
+  isDestructiveModal = true,
   ...props
 }) => {
   const handlePrimaryClick = () => {
@@ -69,7 +71,7 @@ export const DSModal: React.FC<DSModalProps> = ({
         {!hidePrimaryButton && (
           <DSButton
             variant="filled"
-            color="danger"
+            color={`${isDestructiveModal ? "danger.4" : "primary.5"}`}
             onClick={handlePrimaryClick}
             loading={primaryButtonLoading}
             disabled={primaryButtonDisabled}

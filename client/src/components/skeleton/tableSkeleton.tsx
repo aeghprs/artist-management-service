@@ -37,7 +37,8 @@ export const DSTableSkeleton: React.FC<DSTableSkeletonProps> = ({
       </Table>
 
       {withPagination && (
-        <div className="flex justify-center">
+        <div className="flex justify-between">
+          <Skeleton height={36} width={100} />{" "}
           <Skeleton height={36} width={300} />
         </div>
       )}

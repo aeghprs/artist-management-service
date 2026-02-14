@@ -21,7 +21,7 @@ class UserService {
     const total = Number(countResult?.total ?? 0);
 
     const artists = await query<IUser>(
-      `SELECT id, first_name, last_name, email, phone, dob, gender, address, role, created_at 
+      `SELECT id, first_name, last_name, email, phone, dob, gender, address, role 
              FROM users
       WHERE is_active = $3
       ORDER BY created_at DESC
@@ -120,7 +120,7 @@ class UserService {
 
     values.push(id);
     await query(
-      `UPDATE artists SET ${updates.join(", ")} WHERE id = $${paramCount}`,
+      `UPDATE users SET ${updates.join(", ")} WHERE id = $${paramCount}`,
       values,
     );
 
