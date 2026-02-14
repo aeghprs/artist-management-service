@@ -84,7 +84,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       </AppShell.Header>
       <AppShell.Navbar p="sm">
         <AppShell.Section grow my="md" component={ScrollArea}>
-          {NAV_ITEMS.filter((item) => item.roles.includes("super_admin")).map(
+          {NAV_ITEMS.filter((item) => item.roles.includes(role)).map(
             (item) => (
               <NavLink
                 key={item.label}

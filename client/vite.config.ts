@@ -23,6 +23,7 @@ export default defineConfig({
       layout: path.resolve(__dirname, "src/layout"),
       constant: path.resolve(__dirname, "src/constant"),
       api: path.resolve(__dirname, "src/api"),
+      types: path.resolve(__dirname, "src/types"),
     },
   },
 });

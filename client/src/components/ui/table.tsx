@@ -62,7 +62,7 @@ export function DSTable<T extends Record<string, any>>({
 
           <Table.Tbody>
             {!loading && data.length === 0 && (
-              <Table.Tr>
+              <Table.Tr h={50}>
                 <Table.Td colSpan={columns.length + 1}>
                   <Center py="xl">
                     <div className="text-center space-y-2">
