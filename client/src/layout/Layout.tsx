@@ -22,18 +22,31 @@ import { NAV_ITEMS } from "constant/navItems";
 
 import { useAuth } from "contexts/AuthContext";
 
+import useLocalStorage from "hook/useLocalStorage";
+
 import type { UserRole } from "../types/types";
+
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
   const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const { removeToken } = useLocalStorage();
 
   if (!user) return null;
 
   const { first_name, last_name, role, email } = user;
+
+  const handleLogout = () => {
+    setUser(null);
+
+    removeToken("accessToken");
+    removeToken("refreshToken");
+
+    navigate("/login")
+  };
 
   return (
     <AppShell
@@ -84,18 +97,16 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
       </AppShell.Header>
       <AppShell.Navbar p="sm">
         <AppShell.Section grow my="md" component={ScrollArea}>
-          {NAV_ITEMS.filter((item) => item.roles.includes(role)).map(
-            (item) => (
-              <NavLink
-                key={item.label}
-                label={item.label}
-                leftSection={<item.icon size={24} stroke={1.5} />}
-                active={location.pathname === item.link}
-                onClick={() => navigate(item.link)}
-                mb="xs"
-              />
-            ),
-          )}
+          {NAV_ITEMS.filter((item) => item.roles.includes(role)).map((item) => (
+            <NavLink
+              key={item.label}
+              label={item.label}
+              leftSection={<item.icon size={24} stroke={1.5} />}
+              active={location.pathname === item.link}
+              onClick={() => navigate(item.link)}
+              mb="xs"
+            />
+          ))}
         </AppShell.Section>
         <AppShell.Section>
           <Group>
@@ -117,7 +128,12 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         </AppShell.Section>
 
         <AppShell.Section p="sm">
-          <DSButton leftIcon="logout" fullWidth color="danger.2">
+          <DSButton
+            leftIcon="logout"
+            fullWidth
+            color="danger.2"
+            onClick={handleLogout}
+          >
             Logout
           </DSButton>
         </AppShell.Section>
