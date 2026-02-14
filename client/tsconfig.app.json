@@ -16,7 +16,8 @@
       "utils/*": ["./src/utils/*"],
       "constant/*": ["./src/constant/*"],
       "api/*": ["./src/api/*"],
-      "types/*": ["./src/types/*"]
+      "types/*": ["./src/types/*"],
+      "schema/*": ["./src/schema/*"]
     },
 
     /* Bundler mode */

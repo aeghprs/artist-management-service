@@ -9,23 +9,31 @@ import { DSButton } from "components/ui/button";
 import { DSCard } from "components/ui/card";
 import { DSTable } from "components/ui/table";
 import { RoleBadge } from "components/users/RoleBadge";
-
-import { formatGender } from "utils/formatGender";
-
-import type { User } from "../types/types";
+import AddUserModal from "components/users/AddUserModal";
+import EditUserModal from "components/users/EditUserModal";
 import DeleteModal from "components/modal/DeleteModal";
 import { DSNotification } from "components/ui/notifications";
+
 import queryClient from "constant/queryClient";
+
+import { formatGender } from "utils/formatGender";
+import type { User } from "types/types";
+
 
 const Users = () => {
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
-  const [selectedRow, setSelectedRow] = useState<
-    (User & { id: string }) | null
-  >(null);
+  const [selectedRow, setSelectedRow] = useState<User | null>(null);
+  const [selectedAction, setSelectedAction] = useState<"edit" | "add" | null>(
+    null,
+  );
   const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
 
   const deleteModalHandler = () => setDeleteModalVisible(false);
+
+  const [userModalVisible, setUserModalVisible] = useState<boolean>(false);
+
+  const userModalHandler = () => setUserModalVisible(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page, limit],
@@ -58,6 +66,20 @@ const Users = () => {
 
   const { data: paginatedUserData, pagination } = data;
 
+  // const { first_name, last_name, email, phone, dob, gender, address, role } =
+  //   selectedRow;
+
+  // const userData = {
+  //   first_name,
+  //   last_name,
+  //   email,
+  //   phone,
+  //   dob,
+  //   gender,
+  //   address,
+  //   role,
+  // };
+
   return (
     <DSCard>
       <Group justify="space-between" mb="lg">
@@ -70,8 +92,8 @@ const Users = () => {
         <DSButton
           leftIcon={"plus"}
           onClick={() => {
-            // setEditingUser(null);
-            // setFormOpen(true);
+            setSelectedAction("add");
+            setUserModalVisible(true);
           }}
           size="md"
         >
@@ -112,7 +134,11 @@ const Users = () => {
         }}
         withPagination
         loading={isLoading}
-        onEdit={(row) => console.log("Edit", row)}
+        onEdit={(row) => {
+          setSelectedRow(row);
+          setSelectedAction("edit");
+          setUserModalVisible(true);
+        }}
         onDelete={(row) => {
           setSelectedRow(row);
           setDeleteModalVisible(true);
@@ -126,6 +152,17 @@ const Users = () => {
         actionName={`${selectedRow?.first_name} ${selectedRow?.last_name}`}
         deleteHandler={handleDelete}
         isPending={mutation.isPending}
+      />
+
+      <AddUserModal
+        opened={selectedAction === "add" && userModalVisible}
+        onClose={userModalHandler}
+      />
+
+      <EditUserModal
+        opened={selectedAction === "edit" && userModalVisible}
+        onClose={userModalHandler}
+        user={selectedRow}
       />
     </DSCard>
   );

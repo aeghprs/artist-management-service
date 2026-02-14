@@ -24,6 +24,7 @@ export default defineConfig({
       constant: path.resolve(__dirname, "src/constant"),
       api: path.resolve(__dirname, "src/api"),
       types: path.resolve(__dirname, "src/types"),
+      schema: path.resolve(__dirname, "src/schema"),
     },
   },
 });

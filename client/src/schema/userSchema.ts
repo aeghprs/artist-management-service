@@ -40,7 +40,7 @@ export const userLoginSchema = z.object({
   password: baseUserSchema.shape.password,
 });
 
-export const userUpdateSchema = baseUserSchema.partial();
+export const userUpdateSchema = baseUserSchema.omit({ password: true });
 
 export type IRegisterUser = z.infer<typeof userRegistrationSchema>;
 export type ILoginUser = z.infer<typeof userLoginSchema>;

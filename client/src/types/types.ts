@@ -3,6 +3,7 @@ export type Gender = "m" | "f" | "o";
 export type Genre = "rnb" | "country" | "classic" | "rock" | "jazz";
 
 export interface User {
+  id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -14,10 +15,13 @@ export interface User {
   role: UserRole;
 }
 
-export type RegisterUser = Omit<User, "id" | "created_at" | "updated_at"> & {
+export type RegisterUser = Omit<User, "id" > & {
   confirmPassword: string;
 };
+export type UpdateUser = Omit<User, "id" | "password">;
 export type LoginUser = Pick<User, "email" | "password">;
+
+export type UserFormValues = RegisterUser | Omit<User, "password">;
 
 export interface Artist {
   id: number;
