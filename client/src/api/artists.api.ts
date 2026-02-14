@@ -36,7 +36,17 @@ export const getSongsByArtistId = async (
   page: number,
   limit: number,
 ) => {
-  const response = await api.get(`songs/artist/${id}?page=${page}&limit=${limit}`);
+  const response = await api.get(
+    `songs/artist/${id}?page=${page}&limit=${limit}`,
+  );
 
   return response.data.data;
+};
+
+export const handleArtistCSVExport = async (): Promise<Blob> => {
+  const response = await api.get(`artist/export`, {
+    responseType: "blob",
+  });
+
+  return response.data;
 };

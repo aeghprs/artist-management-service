@@ -15,7 +15,7 @@ export interface User {
   role: UserRole;
 }
 
-export type RegisterUser = Omit<User, "id" > & {
+export type RegisterUser = Omit<User, "id"> & {
   confirmPassword: string;
 };
 export type UpdateUser = Omit<User, "id" | "password">;
@@ -31,9 +31,9 @@ export interface Artist {
   address: string;
   first_release_year: number;
   no_of_albums_released: number;
-  created_at: string;
-  updated_at: string;
 }
+export type RegisterArtist = Omit<Artist, "id">;
+export type ArtistFormValues = Artist | RegisterArtist;
 
 export interface Song {
   id: number;
@@ -54,4 +54,24 @@ export interface ApiErrorResponse {
   success: boolean;
   message: string;
   errors?: ValidationError[];
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface ArtistSongsResponse {
+  artist: Pick<Artist, "id" | "name">;
+  songs: Song[];
+  pagination: Pagination;
+}
+
+export interface SongListItem {
+  artist_name: string;
+  title: string;
+  album_name: string;
+  genre: string;
 }

@@ -107,7 +107,7 @@ class MusicService {
     const total = parseInt(countResult?.total || "0");
 
     const songs = await query<Music>(
-      `SELECT id, artist_id, title, album_name, genre, created_at, updated_at
+      `SELECT id, artist_id, title, album_name, genre
        FROM songs
        WHERE artist_id = $1 and is_active = $4
        ORDER BY created_at DESC

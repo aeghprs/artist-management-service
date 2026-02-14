@@ -4,7 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { deleteUser, fetchUsers } from "api/user.api";
 
-import { PageSkeleton } from "components/skeleton/PageSkeleton";
+import { UserSkeleton } from "components/skeleton/UserSkeleton";
 import { DSButton } from "components/ui/button";
 import { DSCard } from "components/ui/card";
 import { DSTable } from "components/ui/table";
@@ -61,24 +61,10 @@ const Users = () => {
   };
 
   if (isLoading) {
-    return <PageSkeleton />;
+    return <UserSkeleton />;
   }
 
   const { data: paginatedUserData, pagination } = data;
-
-  // const { first_name, last_name, email, phone, dob, gender, address, role } =
-  //   selectedRow;
-
-  // const userData = {
-  //   first_name,
-  //   last_name,
-  //   email,
-  //   phone,
-  //   dob,
-  //   gender,
-  //   address,
-  //   role,
-  // };
 
   return (
     <DSCard>
