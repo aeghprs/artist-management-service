@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 
+import AccessDenied from "components/routes/AccessDenied";
 import { PublicRoute } from "components/routes/PublicRoutes";
 import { ProtectedRoute } from "components/routes/ProtectedRoutes";
 
@@ -48,7 +49,7 @@ const App = () => (
         <Route
           path="/users"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["super_admin"]}>
               <Users />
             </ProtectedRoute>
           }
@@ -56,7 +57,7 @@ const App = () => (
         <Route
           path="/artists"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["super_admin", "artist_manager"]}>
               <Artists />
             </ProtectedRoute>
           }
@@ -64,7 +65,9 @@ const App = () => (
         <Route
           path="/songs"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute
+              allowedRoles={["artist"]}
+            >
               <Songs />
             </ProtectedRoute>
           }
@@ -72,12 +75,13 @@ const App = () => (
         <Route
           path="/artists/:artistId/songs"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["artist"]}>
               <SongsByArtist />
             </ProtectedRoute>
           }
         />
         <Route path="*" element={<NotFound />} />
+        <Route path="/access-denied" element={<AccessDenied />} />
       </Routes>
     </AuthProvider>
   </QueryClientProvider>
