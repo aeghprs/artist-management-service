@@ -48,8 +48,7 @@ class ArtistService {
     const artists = await query<Artist>(
       `
       SELECT id, name, dob, gender, address,
-             first_release_year, no_of_albums_released,
-             created_at, updated_at
+             first_release_year, no_of_albums_released
       FROM artists
       WHERE is_active = $3
       ORDER BY id DESC

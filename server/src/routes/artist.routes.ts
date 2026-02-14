@@ -35,6 +35,20 @@ router.get(
 );
 
 router.get(
+  "/export",
+  verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
+  artistBatchController.exportCSV,
+);
+
+router.post(
+  "/import",
+  upload.single("file"),
+  verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
+  validateArtistCsv,
+  artistBatchController.importCSV,
+);
+
+router.get(
   "/:id",
   verifyAuthorizationRole(ROLE.SUPER_ADMIN, ROLE.ARTIST_MANAGER),
   artistController.getArtist,
@@ -57,20 +71,6 @@ router.delete(
   "/:id",
   verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
   artistController.deleteArtist,
-);
-
-router.get(
-  "/export",
-  verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
-  artistBatchController.exportCSV,
-);
-
-router.post(
-  "/import",
-  upload.single("file"),
-  verifyAuthorizationRole(ROLE.ARTIST_MANAGER),
-  validateArtistCsv,
-  artistBatchController.importCSV,
 );
 
 export default router;

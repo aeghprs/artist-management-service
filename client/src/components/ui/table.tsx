@@ -7,7 +7,7 @@ import {
   ActionIcon,
   Center,
 } from "@mantine/core";
-import { IconEdit, IconTrash, IconInbox } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconInbox, IconMusic } from "@tabler/icons-react";
 import { DSPagination } from "./pagination";
 
 interface Column<T> {
@@ -27,6 +27,7 @@ interface DSTableProps<T> {
   withPagination?: boolean;
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  onView?: (row: T) => void;
   loading?: boolean;
 }
 
@@ -42,6 +43,7 @@ export function DSTable<T extends Record<string, any>>({
   withPagination = false,
   onEdit,
   onDelete,
+  onView,
   loading = false,
 }: DSTableProps<T>) {
   const totalPages = Math.ceil(totalRecords / itemsPerPage);
@@ -85,9 +87,19 @@ export function DSTable<T extends Record<string, any>>({
                   </Table.Td>
                 ))}
 
-                {(onEdit || onDelete) && (
+                {(onEdit || onDelete || onView) && (
                   <Table.Td>
                     <Group justify="center" gap="xs">
+                      {onView && (
+                        <ActionIcon
+                          variant="light"
+                          color="green"
+                          onClick={() => onView(row)}
+                        >
+                          <IconMusic size={16} />
+                        </ActionIcon>
+                      )}
+
                       {onEdit && (
                         <ActionIcon
                           variant="light"
@@ -134,6 +146,6 @@ export function DSTable<T extends Record<string, any>>({
           />
         </Group>
       )}
-      </>
+    </>
   );
 }
