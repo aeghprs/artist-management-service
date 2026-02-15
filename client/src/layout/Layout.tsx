@@ -41,10 +41,8 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
   const handleLogout = () => {
     setUser(null);
-
     removeToken("accessToken");
     removeToken("refreshToken");
-
     window.location.href = "/login";
   };
 
@@ -58,6 +56,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         collapsed: { mobile: !mobileOpened, desktop: !desktopOpened },
       }}
     >
+      {/* Header */}
       <AppShell.Header>
         <Group h="100%" gap="md">
           <Burger
@@ -74,16 +73,12 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             size="md"
             color="primary.5"
           />
-          <Flex
-            gap="md"
-            justify="flex-start"
-            align="center"
-            direction="row"
-            wrap="wrap"
-          >
+
+          <Flex gap="md" align="center" wrap="wrap">
             <ThemeIcon size={36} radius="md" variant="filled">
               <IconMusic size={28} />
             </ThemeIcon>
+
             <Text
               size="md"
               tt="uppercase"
@@ -95,7 +90,10 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           </Flex>
         </Group>
       </AppShell.Header>
+
+      {/* Navbar */}
       <AppShell.Navbar p="sm">
+        {/* Navigation Links */}
         <AppShell.Section grow my="md" component={ScrollArea}>
           {NAV_ITEMS.filter((item) => item.roles.includes(role)).map((item) => (
             <NavLink
@@ -108,6 +106,8 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             />
           ))}
         </AppShell.Section>
+
+        {/* User Info */}
         <AppShell.Section>
           <Group>
             <Avatar radius="xl" color="blue">
@@ -116,10 +116,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             </Avatar>
 
             <div style={{ flex: 1 }}>
-              <Text size="sm" fw={100}>
+              <Text size="sm" fw={500}>
                 {first_name} {last_name} | {USER_ROLES[role] as UserRole}
               </Text>
-
               <Text c="dimmed" size="sm">
                 {email}
               </Text>
@@ -127,6 +126,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           </Group>
         </AppShell.Section>
 
+        {/* Logout Button */}
         <AppShell.Section p="sm">
           <DSButton
             leftIcon="logout"
@@ -138,6 +138,8 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
           </DSButton>
         </AppShell.Section>
       </AppShell.Navbar>
+
+      {/* Main Content */}
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
   );
