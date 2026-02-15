@@ -1,19 +1,30 @@
 import { useForm } from "@mantine/form";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { useMutation } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 
-import type { AssociatedUsersForArtist, Gender, RegisterArtist, ValidationError } from "types/types";
+import type {
+  AssociatedUsersForArtist,
+  Gender,
+  RegisterArtist,
+  ValidationError,
+} from "types/types";
 
 import ArtistForm from "./ArtistForm";
 import { AddArtistTitle } from "./ArtistTitle";
+
 import AddEditModal from "components/modal/AddOrEditModal";
 import { DSNotification } from "components/ui/notifications";
 
 import { ARTIST_VALUES } from "constant/artistDefaultValues";
 import queryClient from "constant/queryClient";
+
 import { artistRegistrationSchema } from "schema/artistSchema";
+
 import { createNewArtist } from "api/artists.api";
+
 import { transformToSelectOptions } from "utils/getAssociatedUserListFromUser";
+import { getErrorMessage } from "utils/errorHandler";
 
 interface AddArtistModalProps {
   opened: boolean;
@@ -44,19 +55,25 @@ const AddArtistModal = ({
       form.reset();
       onClose();
     },
-    onError: (err) => {
-      const errorData = err?.response?.data;
+    onError: (err: unknown) => {
+      const axiosError = err as AxiosError<{
+        message?: string;
+        errors?: ValidationError[];
+      }>;
 
-      if (errorData?.errors) {
-        errorData.errors.forEach((validationError: ValidationError) => {
+      // If response data exists and has validation errors
+      const errorData = axiosError.response?.data;
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        errorData.errors.forEach((validationError) => {
           DSNotification.error(
             validationError.field.toUpperCase(),
             validationError.message,
           );
         });
-      } else {
-        DSNotification.error("", errorData?.message);
+        return;
       }
+
+      DSNotification.error(getErrorMessage(err), "");
     },
   });
 

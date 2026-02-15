@@ -7,13 +7,13 @@ import type { ArtistSongsResponse, SongListItem } from "types/types";
 
 import { getSongsByArtistId } from "api/artists.api";
 
+import { transformSongs } from "utils/formatSongs";
+
 import { DSButton } from "components/ui/button";
 import { DSCard } from "components/ui/card";
 import { DSTable } from "components/ui/table";
-import { ArtistSongsSkeleton } from "components/skeleton/ArtistSongsSkeleton";
-
-import { transformSongs } from "utils/formatSongs";
 import { DSBadge } from "components/ui/Badge";
+import { ArtistSongsSkeleton } from "components/skeleton/ArtistSongsSkeleton";
 
 const SongsByArtist = () => {
   const { artistId } = useParams<{ artistId: string }>();
@@ -21,8 +21,8 @@ const SongsByArtist = () => {
 
   const id = Number(artistId);
 
-  const [limit, setLimit] = useState<number>(10);
-  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
 
   const { data: paginatedSongsData, isLoading } = useQuery<ArtistSongsResponse>(
     {
@@ -34,20 +34,17 @@ const SongsByArtist = () => {
 
   const songsForTable = transformSongs(paginatedSongsData);
 
-  if (isLoading) {
-    return <ArtistSongsSkeleton />
-  }
+  if (isLoading) return <ArtistSongsSkeleton />;
 
   return (
     <DSCard>
+      {/* Header with Back Button */}
       <Stack mb="lg">
         <DSButton
           variant="outline"
           color="secondary.3"
-          leftIcon={"arrowLeft"}
-          onClick={() => {
-            navigate("/artists");
-          }}
+          leftIcon="arrowLeft"
+          onClick={() => navigate("/artists")}
           style={{ width: "fit-content" }}
         >
           Back To Artists
@@ -59,22 +56,18 @@ const SongsByArtist = () => {
           </Text>
         </div>
       </Stack>
+
+      {/* Songs Table */}
       <DSTable
         data={songsForTable}
         columns={[
-          {
-            label: "Name",
-            key: "artist_name",
-          },
+          { label: "Artist Name", key: "artist_name" },
           { label: "Song Name", key: "title" },
-          {
-            label: "Album Name",
-            key: "album_name",
-          },
+          { label: "Album Name", key: "album_name" },
           {
             label: "Genre",
             key: "genre",
-            render: (row: SongListItem) => <DSBadge role={row.genre} />
+            render: (row: SongListItem) => <DSBadge role={row.genre} />,
           },
         ]}
         totalRecords={paginatedSongsData?.pagination.total}

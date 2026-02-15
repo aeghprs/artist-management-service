@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Group, Text, Title } from "@mantine/core";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 import type { Artist } from "types/types";
 
@@ -11,44 +11,48 @@ import {
   fetchUsersForArtistRole,
 } from "api/artists.api";
 
-import AddArtistModal from "components/artist/AddArtistModal";
-import EditArtistModal from "components/artist/EditArtistModal";
-import DeleteModal from "components/modal/DeleteModal";
-import { ArtistSkeleton } from "components/skeleton/ArtistSkeleton";
+import { useAuth } from "contexts/AuthContext";
+
 import { DSButton } from "components/ui/button";
 import { DSCard } from "components/ui/card";
 import { DSTable } from "components/ui/table";
 import { DSNotification } from "components/ui/notifications";
 
+import DeleteModal from "components/modal/DeleteModal";
+import AddArtistModal from "components/artist/AddArtistModal";
+import EditArtistModal from "components/artist/EditArtistModal";
+import ArtistBatch from "components/artist/BatchInput/ArtistBatch";
+
+import { ArtistSkeleton } from "components/skeleton/ArtistSkeleton";
+
 import queryClient from "constant/queryClient";
 
 import { formatGender } from "utils/formatGender";
-import ArtistBatch from "components/artist/BatchInput/ArtistBatch";
-import { useAuth } from "contexts/AuthContext";
+import { getErrorMessage } from "utils/errorHandler";
 
 const Artists = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [limit, setLimit] = useState<number>(10);
-  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
   const [selectedRow, setSelectedRow] = useState<Artist | null>(null);
   const [selectedAction, setSelectedAction] = useState<"edit" | "add" | null>(
     null,
   );
-  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [artistModalVisible, setArtistModalVisible] = useState(false);
 
   const deleteModalHandler = () => setDeleteModalVisible(false);
-
-  const [artistModalVisible, setArtistModalVisible] = useState<boolean>(false);
-
   const artistModalHandler = () => setArtistModalVisible(false);
 
+  // Fetch artists
   const { data, isLoading } = useQuery({
     queryKey: ["artists", page, limit],
     queryFn: fetchArtists,
   });
 
+  // Fetch users for dropdown in Artist modals
   const {
     data: associatedUserArtistRole,
     isLoading: isDropdownOptionsLoading,
@@ -57,6 +61,7 @@ const Artists = () => {
     queryFn: fetchUsersForArtistRole,
   });
 
+  // Delete mutation
   const mutation = useMutation({
     mutationFn: (id: number) => deleteArtist(id),
     onSuccess: (data) => {
@@ -66,27 +71,21 @@ const Artists = () => {
       setDeleteModalVisible(false);
     },
     onError: (err) => {
-      DSNotification.error(
-        "",
-        err.response?.data?.message || "Something went wrong",
-      );
+      DSNotification.error(getErrorMessage(err), "");
     },
   });
 
   const handleDelete = () => {
-    if (selectedRow?.id) {
-      mutation.mutate(Number(selectedRow.id));
-    }
+    if (selectedRow?.id) mutation.mutate(Number(selectedRow.id));
   };
 
-  if (isLoading || isDropdownOptionsLoading) {
-    return <ArtistSkeleton />;
-  }
+  if (isLoading || isDropdownOptionsLoading) return <ArtistSkeleton />;
 
   const { data: paginatedArtistsData, pagination } = data;
 
   return (
     <DSCard>
+      {/* Header */}
       <Group justify="space-between" mb="lg">
         <div>
           <Title order={3}>Artists</Title>
@@ -96,11 +95,15 @@ const Artists = () => {
         </div>
 
         <Group>
-          <ArtistBatch role={user?.role} firstName={user?.first_name} lastName={user?.last_name}/>
+          <ArtistBatch
+            role={user?.role}
+            firstName={user?.first_name}
+            lastName={user?.last_name}
+          />
 
-          {user?.role && user.role === "artist_manager" && (
+          {user?.role === "artist_manager" && (
             <DSButton
-              leftIcon={"plus"}
+              leftIcon="plus"
               onClick={() => {
                 setSelectedAction("add");
                 setArtistModalVisible(true);
@@ -112,17 +115,16 @@ const Artists = () => {
           )}
         </Group>
       </Group>
+
+      {/* Artists Table */}
       <DSTable
         data={paginatedArtistsData}
         columns={[
-          {
-            label: "Associated User Name",
-            key: "associatedUserName",
-          },
+          { label: "Associated User Name", key: "associatedUserName" },
           {
             label: "Full Name",
             key: "name",
-            render: (row: Artist) => `${row.name}`,
+            render: (row: Artist) => row.name,
           },
           { label: "Date of Birth", key: "dob" },
           {
@@ -132,7 +134,6 @@ const Artists = () => {
           },
           { label: "Address", key: "address" },
           { label: "First Release Year", key: "first_release_year" },
-
           { label: "Albums", key: "no_of_albums_released" },
         ]}
         totalRecords={pagination.total}
@@ -154,29 +155,28 @@ const Artists = () => {
           setSelectedRow(row);
           setDeleteModalVisible(true);
         }}
-        onView={(row) => {
-          if (row?.id) navigate(`${row.id}/songs`);
-        }}
+        onView={(row) => row?.id && navigate(`${row.id}/songs`)}
         userRole={user?.role}
         tableName="artists"
       />
 
+      {/* Delete Modal */}
       <DeleteModal
         deleteModalVisible={deleteModalVisible}
         onCloseHandler={deleteModalHandler}
-        title={"Delete Artist"}
-        actionName={`${selectedRow?.name}`}
+        title="Delete Artist"
+        actionName={selectedRow?.name || ""}
         deleteHandler={handleDelete}
         isPending={mutation.isPending}
         note="Note: Deleting this artist will permanently delete all associated songs."
       />
 
+      {/* Add/Edit Artist Modals */}
       <AddArtistModal
         opened={selectedAction === "add" && artistModalVisible}
         onClose={artistModalHandler}
         associatedUserArtistRole={associatedUserArtistRole}
       />
-
       <EditArtistModal
         opened={selectedAction === "edit" && artistModalVisible}
         onClose={artistModalHandler}

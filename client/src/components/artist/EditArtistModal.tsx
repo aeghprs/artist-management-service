@@ -18,6 +18,7 @@ import queryClient from "constant/queryClient";
 import { artistRegistrationSchema } from "schema/artistSchema";
 import { updateArtist } from "api/artists.api";
 import { transformToSelectOptions } from "utils/getAssociatedUserListFromUser";
+import { getErrorMessage } from "utils/errorHandler";
 
 interface EditArtistModalProps {
   opened: boolean;
@@ -72,7 +73,7 @@ const EditArtistModal = ({
       onClose();
     },
     onError: (err) => {
-      DSNotification.error("", err?.response?.data?.message);
+       DSNotification.error(getErrorMessage(err), "");
     },
   });
 
