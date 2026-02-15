@@ -13,6 +13,7 @@ import { DSNotification } from "components/ui/notifications";
 import queryClient from "constant/queryClient";
 import { userUpdateSchema } from "schema/userSchema";
 import { updateUser } from "api/user.api";
+import { getErrorMessage } from "utils/errorHandler";
 
 interface EditUserModalProps {
   opened: boolean;
@@ -42,7 +43,7 @@ const EditUserModal = ({ opened, onClose, user }: EditUserModalProps) => {
       onClose();
     },
     onError: (err) => {
-      DSNotification.error("", err?.response?.data?.message);
+       DSNotification.error(getErrorMessage(err), "");
     },
   });
 

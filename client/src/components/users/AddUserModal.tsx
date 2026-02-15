@@ -18,6 +18,8 @@ import { USER_DEFAULT_VALUES } from "constant/userDefaultValues";
 import queryClient from "constant/queryClient";
 import { userRegistrationSchema } from "schema/userSchema";
 import { register } from "api/auth.api";
+import { getErrorMessage } from "utils/errorHandler";
+import type { AxiosError } from "axios";
 
 interface AddUserModalProps {
   opened: boolean;
@@ -42,19 +44,25 @@ const AddUserModal = ({ opened, onClose }: AddUserModalProps) => {
       form.reset();
       onClose();
     },
-    onError: (err) => {
-      const errorData = err?.response?.data;
+    onError: (err: unknown) => {
+      const axiosError = err as AxiosError<{
+        message?: string;
+        errors?: ValidationError[];
+      }>;
 
-      if (errorData?.errors) {
-        errorData.errors.forEach((validationError: ValidationError) => {
+      // If response data exists and has validation errors
+      const errorData = axiosError.response?.data;
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        errorData.errors.forEach((validationError) => {
           DSNotification.error(
             validationError.field.toUpperCase(),
             validationError.message,
           );
         });
-      } else {
-        DSNotification.error("", errorData?.message);
+        return;
       }
+
+      DSNotification.error(getErrorMessage(err), "");
     },
   });
 
