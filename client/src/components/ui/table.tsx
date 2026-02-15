@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Table,
   ScrollArea,
@@ -7,8 +8,10 @@ import {
   ActionIcon,
   Center,
 } from "@mantine/core";
-import { IconEdit, IconTrash, IconInbox } from "@tabler/icons-react";
+import { IconEdit, IconTrash, IconInbox, IconMusic } from "@tabler/icons-react";
 import { DSPagination } from "./pagination";
+import type { Role } from "constant/userDefaultValues";
+import { getAllowedActions } from "utils/getAllowedTableActions";
 
 interface Column<T> {
   label: string;
@@ -27,10 +30,12 @@ interface DSTableProps<T> {
   withPagination?: boolean;
   onEdit?: (row: T) => void;
   onDelete?: (row: T) => void;
+  onView?: (row: T) => void;
   loading?: boolean;
+  userRole?: Role | undefined;
+  tableName: "users" | "artists" | "songs" | "songsPerArtist";
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function DSTable<T extends Record<string, any>>({
   data,
   columns,
@@ -42,7 +47,10 @@ export function DSTable<T extends Record<string, any>>({
   withPagination = false,
   onEdit,
   onDelete,
+  onView,
+  userRole,
   loading = false,
+  tableName,
 }: DSTableProps<T>) {
   const totalPages = Math.ceil(totalRecords / itemsPerPage);
 
@@ -56,7 +64,9 @@ export function DSTable<T extends Record<string, any>>({
                 <Table.Th key={col.label}>{col.label}</Table.Th>
               ))}
 
-              {(onEdit || onDelete) && <Table.Th ta="center">Actions</Table.Th>}
+              {(onEdit || onDelete || onView) && (
+                <Table.Th ta="center">Actions</Table.Th>
+              )}
             </Table.Tr>
           </Table.Thead>
 
@@ -84,31 +94,15 @@ export function DSTable<T extends Record<string, any>>({
                     {col.render ? col.render(row) : row[col.key]}
                   </Table.Td>
                 ))}
-
-                {(onEdit || onDelete) && (
-                  <Table.Td>
-                    <Group justify="center" gap="xs">
-                      {onEdit && (
-                        <ActionIcon
-                          variant="light"
-                          color="blue"
-                          onClick={() => onEdit(row)}
-                        >
-                          <IconEdit size={16} />
-                        </ActionIcon>
-                      )}
-
-                      {onDelete && (
-                        <ActionIcon
-                          variant="light"
-                          color="red"
-                          onClick={() => onDelete(row)}
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      )}
-                    </Group>
-                  </Table.Td>
+                {tableName != "songsPerArtist" && (
+                  <SharedTableActions
+                    table={tableName}
+                    row={row}
+                    currentRole={userRole}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onView={onView}
+                  />
                 )}
               </Table.Tr>
             ))}
@@ -134,6 +128,50 @@ export function DSTable<T extends Record<string, any>>({
           />
         </Group>
       )}
-      </>
+    </>
   );
 }
+
+interface SharedTableActionsProps {
+  table: "users" | "artists" | "songs";
+  row: any;
+  currentRole: Role | undefined;
+  onView?: (row: any) => void;
+  onEdit?: (row: any) => void;
+  onDelete?: (row: any) => void;
+}
+
+const SharedTableActions = ({
+  table,
+  row,
+  currentRole,
+  onView,
+  onEdit,
+  onDelete,
+}: SharedTableActionsProps) => {
+  const { canView, canEdit, canDelete } = getAllowedActions(table, currentRole);
+
+  if (!canView && !canEdit && !canDelete) return null;
+
+  return (
+    <Table.Td>
+      <Group justify="center" gap="xs">
+        {canView && onView && (
+          <ActionIcon variant="light" color="green" onClick={() => onView(row)}>
+            <IconMusic size={16} />
+          </ActionIcon>
+        )}
+        {canEdit && onEdit && (
+          <ActionIcon variant="light" color="blue" onClick={() => onEdit(row)}>
+            <IconEdit size={16} />
+          </ActionIcon>
+        )}
+        {canDelete && onDelete && (
+          <ActionIcon variant="light" color="red" onClick={() => onDelete(row)}>
+            <IconTrash size={16} />
+          </ActionIcon>
+        )}
+      </Group>
+    </Table.Td>
+  );
+};

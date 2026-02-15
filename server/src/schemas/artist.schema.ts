@@ -1,6 +1,9 @@
 import { z } from "zod";
 
 export const artistRegistrationSchema = z.object({
+  user_id: z.number({
+    required_error: "User Id is required",
+  }),
   name: z
     .string({
       required_error: "Name is required",

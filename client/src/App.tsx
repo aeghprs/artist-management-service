@@ -75,7 +75,7 @@ const App = () => (
         <Route
           path="/artists/:artistId/songs"
           element={
-            <ProtectedRoute allowedRoles={["artist"]}>
+            <ProtectedRoute allowedRoles={["artist_manager", "super_admin"]}>
               <SongsByArtist />
             </ProtectedRoute>
           }

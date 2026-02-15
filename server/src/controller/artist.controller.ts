@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { IRegisterArtist } from "../schemas/artist.schema";
 import ArtistService from "../services/artist.services";
+import { transformArtists } from "../utils/transformArtist";
 
 const artistService = new ArtistService();
 
@@ -31,9 +32,11 @@ class ArtistController {
 
       const result = await artistService.getAllArtists(page, limit);
 
+      const transformedResult = transformArtists(result.data)
+
       res.status(200).json({
         success: true,
-        data: result.data,
+        data: transformedResult,
         pagination: result.pagination,
       });
     } catch (error: any) {

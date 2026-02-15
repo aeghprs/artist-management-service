@@ -4,11 +4,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { deleteUser, fetchUsers } from "api/user.api";
 
-import { PageSkeleton } from "components/skeleton/PageSkeleton";
+import { UserSkeleton } from "components/skeleton/UserSkeleton";
 import { DSButton } from "components/ui/button";
 import { DSCard } from "components/ui/card";
 import { DSTable } from "components/ui/table";
-import { RoleBadge } from "components/users/RoleBadge";
+import { DSBadge } from "components/ui/Badge";
 import AddUserModal from "components/users/AddUserModal";
 import EditUserModal from "components/users/EditUserModal";
 import DeleteModal from "components/modal/DeleteModal";
@@ -19,8 +19,10 @@ import queryClient from "constant/queryClient";
 import { formatGender } from "utils/formatGender";
 import type { User } from "types/types";
 
+import { useAuth } from "contexts/AuthContext";
 
 const Users = () => {
+  const { user } = useAuth();
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   const [selectedRow, setSelectedRow] = useState<User | null>(null);
@@ -61,24 +63,10 @@ const Users = () => {
   };
 
   if (isLoading) {
-    return <PageSkeleton />;
+    return <UserSkeleton />;
   }
 
   const { data: paginatedUserData, pagination } = data;
-
-  // const { first_name, last_name, email, phone, dob, gender, address, role } =
-  //   selectedRow;
-
-  // const userData = {
-  //   first_name,
-  //   last_name,
-  //   email,
-  //   phone,
-  //   dob,
-  //   gender,
-  //   address,
-  //   role,
-  // };
 
   return (
     <DSCard>
@@ -120,7 +108,7 @@ const Users = () => {
           {
             label: "Role",
             key: "role",
-            render: (row) => <RoleBadge role={row.role} />,
+            render: (row) => <DSBadge role={row.role} />,
           },
           { label: "Address", key: "address" },
         ]}
@@ -143,6 +131,8 @@ const Users = () => {
           setSelectedRow(row);
           setDeleteModalVisible(true);
         }}
+        userRole={user?.role}
+        tableName="users"
       />
 
       <DeleteModal

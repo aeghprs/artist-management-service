@@ -53,6 +53,22 @@ class UserService {
     return result;
   }
 
+  public async getUserForArtistRole() {
+    const result = await query<User>(
+      `SELECT u.id, u.first_name, u.last_name
+FROM users u
+WHERE u.role = 'artist' and is_active = $1
+  AND NOT EXISTS (
+    SELECT 1
+    FROM artists a
+    WHERE a.user_id = u.id and is_active = $2
+  );`,
+      [true, true],
+    );
+
+    return result;
+  }
+
   public async updateUser(
     id: string,
     userData: IUpdateUser,

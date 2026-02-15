@@ -27,7 +27,7 @@ export const NAV_ITEMS = [
   {
     label: "Songs",
     icon: IconTrendingUp,
-    link: "/artists",
+    link: "/songs",
     roles: ["artist"],
   },
 ];

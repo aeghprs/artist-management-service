@@ -128,8 +128,6 @@ class AuthService {
         };
       };
 
-      console.log("decoded", decoded);
-
       const accessToken = this.generateAccessToken({
         id: decoded.payload.id,
         email: decoded.payload.email,

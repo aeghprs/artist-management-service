@@ -40,15 +40,16 @@ CREATE TABLE IF NOT EXISTS users (
 -- Artist Table
 CREATE TABLE IF NOT EXISTS artists (
     id SERIAL PRIMARY KEY,
+    user_id INTEGER,
     name VARCHAR(255) NOT NULL,
     dob DATE NOT NULL,
     gender gender_type NOT NULL DEFAULT 'o',
     address VARCHAR(500) NOT NULL,
     first_release_year INTEGER NOT NULL,
     no_of_albums_released INTEGER NOT NULL DEFAULT 0,
-    is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
 -- Song Table
@@ -58,8 +59,8 @@ CREATE TABLE IF NOT EXISTS songs (
     title VARCHAR(255) NOT NULL,
     album_name VARCHAR(255) NOT NULL,
     genre genre_type NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE CASCADE
 );
+

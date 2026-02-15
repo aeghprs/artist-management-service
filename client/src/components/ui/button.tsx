@@ -16,6 +16,7 @@ import {
   IconUpload,
   IconLoader,
   IconLogout,
+  IconArrowLeft,
 } from "@tabler/icons-react";
 
 type IconType =
@@ -29,7 +30,8 @@ type IconType =
   | "edit"
   | "download"
   | "upload"
-  | "logout";
+  | "logout"
+  | "arrowLeft";
 
 type DSButtonProps = PolymorphicComponentProps<
   "button",
@@ -44,6 +46,7 @@ const iconMap = {
   search: IconSearch,
   mail: IconMail,
   arrowRight: IconArrowRight,
+  arrowLeft: IconArrowLeft,
   check: IconCheck,
   x: IconX,
   plus: IconPlus,
