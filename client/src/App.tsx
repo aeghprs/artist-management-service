@@ -1,12 +1,15 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 
-import AccessDenied from "components/routes/AccessDenied";
-import { PublicRoute } from "components/routes/PublicRoutes";
-import { ProtectedRoute } from "components/routes/ProtectedRoutes";
-import ArtistAssociationRequired from "components/songs/ArtistAssociationRequired";
+import queryClient from "constant/queryClient";
 
 import { AuthProvider } from "contexts/AuthContext";
+
+import { PublicRoute } from "components/routes/PublicRoutes";
+import { ProtectedRoute } from "components/routes/ProtectedRoutes";
+
+import AccessDenied from "components/routes/AccessDenied";
+import ArtistAssociationRequired from "components/songs/ArtistAssociationRequired";
 
 import Login from "pages/Login";
 import Register from "pages/Register";
@@ -16,13 +19,14 @@ import Artists from "pages/Artists";
 import Songs from "pages/Songs";
 import SongsByArtist from "pages/SongsByArtist";
 import NotFound from "pages/NotFound";
-import queryClient from "constant/queryClient";
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* Public Routes */}
         <Route
           path="/login"
           element={
@@ -39,6 +43,8 @@ const App = () => (
             </PublicRoute>
           }
         />
+
+        {/* Protected Routes */}
         <Route
           path="/dashboard"
           element={
@@ -71,7 +77,7 @@ const App = () => (
             </ProtectedRoute>
           }
         />
-                <Route
+        <Route
           path="/artist-association-required"
           element={
             <ProtectedRoute allowedRoles={["artist"]}>
@@ -87,9 +93,10 @@ const App = () => (
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<NotFound />} />
-        <Route path="/access-denied" element={<AccessDenied />} />
 
+        {/* Fallback Routes */}
+        <Route path="/access-denied" element={<AccessDenied />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
   </QueryClientProvider>
