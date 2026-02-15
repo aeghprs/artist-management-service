@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { parse } from "json2csv";
 import ArtistBatchService from "../services/artistBatch.services";
+import { AppError } from "../utils/errorHandler";
 
 const artistBatchService = new ArtistBatchService();
 
@@ -55,9 +56,15 @@ class ArtistBatchController {
         },
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          message: error.message,
+        });
+      }
       return res.status(500).json({
         success: false,
-        message: "Error exporting CSV",
+        message: "Error importing CSV",
       });
     }
   }

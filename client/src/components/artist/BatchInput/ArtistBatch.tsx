@@ -1,9 +1,13 @@
-import { Group } from "@mantine/core";
+import { FileButton, Group } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
+import api from "api/api";
 import { handleArtistCSVExport } from "api/artists.api";
 import { DSButton } from "components/ui/button";
 import { DSNotification } from "components/ui/notifications";
+import queryClient from "constant/queryClient";
 import type { Role } from "constant/userDefaultValues";
+import { useState } from "react";
+import { getErrorMessage } from "utils/errorHandler";
 
 const ArtistBatch = ({
   role,
@@ -14,9 +18,36 @@ const ArtistBatch = ({
   firstName: string | undefined;
   lastName: string | undefined;
 }) => {
+  // eslint-disable-next-line react-hooks/purity
+  const [inputKey, setInputKey] = useState(Date.now()); // key to reset FileButton
   const exportMutation = useMutation<Blob, Error, void>({
     mutationFn: async () => {
       return await handleArtistCSVExport();
+    },
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await api.post("/artist/import", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Upload successful:", data);
+      DSNotification.success(data.message, "");
+      setInputKey(Date.now());
+      queryClient.invalidateQueries({ queryKey: ["artists"] });
+      queryClient.invalidateQueries({ queryKey: ["fetchUsersForArtist"] });
+    },
+    onError: (error) => {
+      console.error("Upload failed:", error);
+       DSNotification.error(getErrorMessage(error), "");
+      setInputKey(Date.now());
     },
   });
 
@@ -47,18 +78,26 @@ const ArtistBatch = ({
 
   return (
     <Group>
-      <DSButton
-        leftIcon={"upload"}
-        onClick={() => {
-          //   setSelectedAction("add");
-          //   setArtistModalVisible(true);
+      <FileButton
+        key={inputKey}
+        onChange={(file) => {
+          if (file) uploadMutation.mutate(file);
         }}
-        size="md"
-        color="secondary.3"
-        variant="outline"
+        accept=".xls,.xlsx,.csv"
       >
-        Import
-      </DSButton>
+        {(props) => (
+          <DSButton
+            {...props}
+            leftIcon="upload"
+            size="md"
+            color="secondary.3"
+            variant="outline"
+            loading={uploadMutation.isPending}
+          >
+            Import
+          </DSButton>
+        )}
+      </FileButton>
       <DSButton
         leftIcon="download"
         onClick={handleExport}

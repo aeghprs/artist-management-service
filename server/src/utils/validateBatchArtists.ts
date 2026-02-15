@@ -25,6 +25,13 @@ export interface ImportResponse {
 export const validateArtistRow = (data: any): string[] => {
   const errors: string[] = [];
 
+  // Validate user_id
+  if (!data.user_id || data.user_id.trim() === "") {
+    errors.push("User Id is required");
+  } else {
+    const user_id = parseInt(data.user_id);
+  }
+
   // Validate name
   if (!data.name || data.name.trim() === "") {
     errors.push("Name is required");

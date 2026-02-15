@@ -48,8 +48,6 @@ router.post(
   artistBatchController.importCSV,
 );
 
-
-
 router.get(
   "/:id",
   verifyAuthorizationRole(ROLE.SUPER_ADMIN, ROLE.ARTIST_MANAGER),
