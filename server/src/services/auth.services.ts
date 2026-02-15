@@ -14,6 +14,10 @@ export interface User {
   role: "super_admin" | "artist_manager" | "artist";
   created_at?: string;
   dob: string | undefined;
+  isArtistAssociated: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 class AuthService {
@@ -147,7 +151,7 @@ class AuthService {
 
   public async getCurrentUser(id: number): Promise<User | null> {
     const user = await queryOne<User>(
-      `SELECT id, first_name, last_name, email, phone, dob, gender, address, role, created_at 
+      `SELECT id, first_name, last_name, email, phone, dob, gender, address, role 
              FROM users WHERE id = $1`,
       [id],
     );
@@ -156,9 +160,24 @@ class AuthService {
       throw new Error("Failed to get user information");
     }
 
+    if (user.role === "artist") {
+      const associatedArtist = await queryOne<{
+        id: number;
+        name: string;
+      }>(`SELECT id, name FROM artists WHERE user_id = $1`, [user.id]);
+
+      const userResponse = {
+        ...user,
+        dob: normalizeDate(user.dob, "date"),
+        isArtistAssociated: associatedArtist,
+      };
+      return userResponse;
+    }
+
     const userResponse = {
       ...user,
       dob: normalizeDate(user.dob, "date"),
+      isArtistAssociated: null,
     };
     return userResponse;
   }

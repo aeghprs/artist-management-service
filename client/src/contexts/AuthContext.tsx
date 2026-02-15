@@ -20,7 +20,10 @@ interface User {
   last_name: string;
   email: string;
   role: UserRole;
-  isArtistAssociated: boolean | null;
+  isArtistAssociated: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 interface AuthContextType {
