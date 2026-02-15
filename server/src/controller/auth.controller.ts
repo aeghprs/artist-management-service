@@ -34,8 +34,6 @@ class AuthController {
         return;
       }
 
-      console.log(error);
-
       res.status(500).json({
         success: false,
         message: "Registration failed",

@@ -28,6 +28,31 @@ class ArtistBatchService {
       await client.query("BEGIN");
 
       for (const data of validatedData) {
+        const userCheckQuery = `
+        SELECT u.id
+        FROM users u
+        WHERE u.id = $1
+          AND u.role = 'artist'
+          AND u.is_active = TRUE
+          AND NOT EXISTS (
+            SELECT 1
+            FROM artists a
+            WHERE a.user_id = u.id
+             
+          )
+      `;
+
+        const userCheckResult = await client.query<{ id: number }>(
+          userCheckQuery,
+          [data.user_id],
+        );
+
+        if (userCheckResult.rowCount === 0) {
+          throw new Error(
+            `User with id ${data.user_id} either does not exist, is not an artist, or is already assigned to another active artist.`,
+          );
+        }
+
         const query = `
           INSERT INTO artists (
             name, 
@@ -35,9 +60,10 @@ class ArtistBatchService {
             gender, 
             address, 
             first_release_year, 
-            no_of_albums_released
+            no_of_albums_released,
+            user_id
           )
-          VALUES ($1, $2, $3, $4, $5, $6)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
           RETURNING *
         `;
 
@@ -48,6 +74,7 @@ class ArtistBatchService {
           data.address,
           data.first_release_year,
           data.no_of_albums_released,
+          data.user_id,
         ];
 
         const result = await client.query<Artist>(query, values);
@@ -56,10 +83,12 @@ class ArtistBatchService {
 
       await client.query("COMMIT");
       return insertedArtists;
-    } catch (error) {
+    } catch (error: any) {
       await client.query("ROLLBACK");
-      throw new Error(
-        `Failed to insert artists: ${error instanceof Error ? error.message : "Unknown error"}`,
+      if (error instanceof AppError) throw error;
+      throw new AppError(
+        `Failed to insert artists: ${error.message || "Unknown error"}`,
+        500,
       );
     } finally {
       client.release();
