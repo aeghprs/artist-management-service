@@ -5,14 +5,22 @@ import { DSButton } from "components/ui/button";
 import { DSNotification } from "components/ui/notifications";
 import type { Role } from "constant/userDefaultValues";
 
-const ArtistBatch = ({ role }: { role: Role | undefined }) => {
+const ArtistBatch = ({
+  role,
+  firstName,
+  lastName,
+}: {
+  role: Role | undefined;
+  firstName: string | undefined;
+  lastName: string | undefined;
+}) => {
   const exportMutation = useMutation<Blob, Error, void>({
     mutationFn: async () => {
       return await handleArtistCSVExport();
     },
   });
 
-  if (role != "artist_manager") return null;
+  if (role != "artist_manager" || !firstName || !lastName) return null;
 
   const handleExport = async () => {
     try {
@@ -21,7 +29,10 @@ const ArtistBatch = ({ role }: { role: Role | undefined }) => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "artists_export.csv");
+      link.setAttribute(
+        "download",
+        `${firstName} ${lastName} artists_export.csv`,
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();

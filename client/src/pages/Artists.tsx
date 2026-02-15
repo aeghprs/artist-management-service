@@ -96,7 +96,7 @@ const Artists = () => {
         </div>
 
         <Group>
-          <ArtistBatch role={user?.role} />
+          <ArtistBatch role={user?.role} firstName={user?.first_name} lastName={user?.last_name}/>
 
           {user?.role && user.role === "artist_manager" && (
             <DSButton
