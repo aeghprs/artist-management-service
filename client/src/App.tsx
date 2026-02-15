@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import AccessDenied from "components/routes/AccessDenied";
 import { PublicRoute } from "components/routes/PublicRoutes";
 import { ProtectedRoute } from "components/routes/ProtectedRoutes";
+import ArtistAssociationRequired from "components/songs/ArtistAssociationRequired";
 
 import { AuthProvider } from "contexts/AuthContext";
 
@@ -65,10 +66,16 @@ const App = () => (
         <Route
           path="/songs"
           element={
-            <ProtectedRoute
-              allowedRoles={["artist"]}
-            >
+            <ProtectedRoute allowedRoles={["artist"]}>
               <Songs />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/artist-association-required"
+          element={
+            <ProtectedRoute allowedRoles={["artist"]}>
+              <ArtistAssociationRequired />
             </ProtectedRoute>
           }
         />
@@ -82,6 +89,7 @@ const App = () => (
         />
         <Route path="*" element={<NotFound />} />
         <Route path="/access-denied" element={<AccessDenied />} />
+
       </Routes>
     </AuthProvider>
   </QueryClientProvider>
