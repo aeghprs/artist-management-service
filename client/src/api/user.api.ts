@@ -1,5 +1,6 @@
 
 import type { UpdateUser, User } from "types/types";
+
 import api from "./api";
 
 export const getUsers = async (page: number = 1, limit: number = 10) => {
