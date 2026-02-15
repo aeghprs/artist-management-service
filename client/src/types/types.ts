@@ -25,6 +25,8 @@ export type UserFormValues = RegisterUser | Omit<User, "password">;
 
 export interface Artist {
   id: number;
+  user_id: number | string;
+  associatedUserName: string;
   name: string;
   dob: string;
   gender: Gender;
@@ -32,7 +34,7 @@ export interface Artist {
   first_release_year: number;
   no_of_albums_released: number;
 }
-export type RegisterArtist = Omit<Artist, "id">;
+export type RegisterArtist = Omit<Artist, "id" | "associatedUserName">;
 export type ArtistFormValues = Artist | RegisterArtist;
 
 export interface Song {
@@ -75,3 +77,11 @@ export interface SongListItem {
   album_name: string;
   genre: string;
 }
+
+export type AssociatedUsersForArtist =
+  | {
+      first_name: string;
+      last_name: string;
+      id: number;
+    }[]
+  | [];

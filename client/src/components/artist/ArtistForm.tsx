@@ -9,19 +9,44 @@ import { DSNumberInput } from "components/ui/NumberInput";
 
 interface ArtistFormProps<T extends ArtistFormValues> {
   form: UseFormReturnType<T>;
+  associatedUserList:
+    | {
+        value: string;
+        label: string;
+      }[]
+    | [];
 }
 
 const ArtistForm = <T extends ArtistFormValues>({
   form,
+  associatedUserList,
 }: ArtistFormProps<T>) => {
   return (
     <Stack>
-      <DSInput
-        label="Full Name"
-        placeholder="John"
-        key={form.key("name")}
-        {...form.getInputProps("name")}
-      />
+      <Grid>
+        <Grid.Col span={6}>
+          <DSSelect
+            label="Associated User"
+            placeholder="Select associated user with artist "
+            data={associatedUserList}
+            key={form.key("user_id")}
+            {...form.getInputProps("user_id")}
+            error={
+              !associatedUserList.length
+                ? "Create new artist user or contact admin."
+                : ""
+            }
+          />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <DSInput
+            label="Full Name"
+            placeholder="John"
+            key={form.key("name")}
+            {...form.getInputProps("name")}
+          />
+        </Grid.Col>
+      </Grid>
 
       <Grid>
         <Grid.Col span={6}>
@@ -61,7 +86,7 @@ const ArtistForm = <T extends ArtistFormValues>({
             placeholder="2026"
             key={form.key("first_release_year")}
             {...form.getInputProps("first_release_year")}
-            max={2100}
+            max={2026}
             allowNegative={false}
             allowDecimal={false}
           />

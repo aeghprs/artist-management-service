@@ -21,8 +21,8 @@ class MusicService {
 
   public async createSong(artistId: string, data: IRegisterMusic) {
     const artist = await queryOne<{ id: number }>(
-      "SELECT id FROM artists WHERE id = $1 and is_active = $2",
-      [artistId, true],
+      "SELECT id FROM artists WHERE id = $1",
+      [artistId],
     );
     if (!artist) throw new AppError("Provided artist_id not found", 404);
 
@@ -41,8 +41,8 @@ class MusicService {
     data: IUpdateMusic,
   ): Promise<Music | null> {
     const existing = await queryOne<{ id: number }>(
-      "SELECT id FROM songs WHERE id = $1 and is_active = $2",
-      [songId, true],
+      "SELECT id FROM songs WHERE id = $1",
+      [songId],
     );
     if (!existing) throw new AppError("Song not found for given id", 404);
 
@@ -81,8 +81,8 @@ class MusicService {
 
   public async deleteSong(songId: string): Promise<boolean> {
     const existing = await queryOne<{ id: number }>(
-      "SELECT id FROM songs WHERE id = $1 and is_active = $2",
-      [songId, true],
+      "SELECT id FROM songs WHERE id = $1",
+      [songId],
     );
     if (!existing) throw new AppError("Song not found for given id", 404);
 
@@ -94,14 +94,14 @@ class MusicService {
     const offset = (page - 1) * limit;
 
     const artist = await queryOne<{ id: number; name: string }>(
-      "SELECT id, name FROM artists WHERE id = $1 and is_active = $2",
-      [artistId, true],
+      "SELECT id, name FROM artists WHERE id = $1",
+      [artistId],
     );
     if (!artist) throw new AppError("Artist not found for given id", 404);
 
     const countResult = await queryOne<{ total: string }>(
-      "SELECT COUNT(*) as total FROM songs WHERE artist_id = $1 and is_active = $2",
-      [artistId, true],
+      "SELECT COUNT(*) as total FROM songs WHERE artist_id = $1",
+      [artistId],
     );
 
     const total = parseInt(countResult?.total || "0");
@@ -109,10 +109,10 @@ class MusicService {
     const songs = await query<Music>(
       `SELECT id, artist_id, title, album_name, genre
        FROM songs
-       WHERE artist_id = $1 and is_active = $4
+       WHERE artist_id = $1
        ORDER BY created_at DESC
        LIMIT $2 OFFSET $3`,
-      [artistId, limit, offset, true],
+      [artistId, limit, offset],
     );
 
     return {

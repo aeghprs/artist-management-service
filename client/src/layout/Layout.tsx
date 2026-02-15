@@ -45,7 +45,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
     removeToken("accessToken");
     removeToken("refreshToken");
 
-    navigate("/login")
+    window.location.href = "/login";
   };
 
   return (

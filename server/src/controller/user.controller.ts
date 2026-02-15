@@ -123,6 +123,22 @@ class UserController {
       });
     }
   }
+
+  public async getUserWithArtistRole(req: Request, res: Response) {
+    try{
+      const result = await userService.getUserForArtistRole();
+
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to retrieve users",
+      });
+    }
+  }
 }
 
 export default UserController;

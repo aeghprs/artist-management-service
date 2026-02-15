@@ -6,6 +6,11 @@ export const getArtists = async (page: number = 1, limit: number = 10) => {
   return response.data;
 };
 
+export const fetchUsersForArtistRole = async () => {
+  const response = await api.get(`users/getUsersForArtist`);
+  return response.data.data;
+};
+
 export const fetchArtists = ({
   queryKey,
 }: {

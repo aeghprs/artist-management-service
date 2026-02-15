@@ -2,7 +2,7 @@ import { useForm } from "@mantine/form";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { useMutation } from "@tanstack/react-query";
 
-import type { Gender, RegisterArtist, ValidationError } from "types/types";
+import type { AssociatedUsersForArtist, Gender, RegisterArtist, ValidationError } from "types/types";
 
 import ArtistForm from "./ArtistForm";
 import { AddArtistTitle } from "./ArtistTitle";
@@ -13,13 +13,19 @@ import { ARTIST_VALUES } from "constant/artistDefaultValues";
 import queryClient from "constant/queryClient";
 import { artistRegistrationSchema } from "schema/artistSchema";
 import { createNewArtist } from "api/artists.api";
+import { transformToSelectOptions } from "utils/getAssociatedUserListFromUser";
 
 interface AddArtistModalProps {
   opened: boolean;
   onClose: () => void;
+  associatedUserArtistRole: AssociatedUsersForArtist;
 }
 
-const AddArtistModal = ({ opened, onClose }: AddArtistModalProps) => {
+const AddArtistModal = ({
+  opened,
+  onClose,
+  associatedUserArtistRole,
+}: AddArtistModalProps) => {
   const form = useForm<RegisterArtist>({
     mode: "uncontrolled",
     initialValues: {
@@ -33,6 +39,8 @@ const AddArtistModal = ({ opened, onClose }: AddArtistModalProps) => {
     onSuccess: (data) => {
       DSNotification.success(data.message, "");
       queryClient.invalidateQueries({ queryKey: ["artists"] });
+      queryClient.invalidateQueries({ queryKey: ["fetchUsersForArtist"] });
+
       form.reset();
       onClose();
     },
@@ -53,13 +61,16 @@ const AddArtistModal = ({ opened, onClose }: AddArtistModalProps) => {
   });
 
   const submitHandler = form.onSubmit((values) => {
-    const { gender, ...rest } = values as RegisterArtist;
+    const { gender, user_id, ...rest } = values as RegisterArtist;
 
     mutate({
       ...rest,
+      user_id: Number(user_id),
       gender: gender as Gender,
     });
   });
+
+  const associatedUserList = transformToSelectOptions(associatedUserArtistRole);
 
   return (
     <AddEditModal
@@ -70,7 +81,7 @@ const AddArtistModal = ({ opened, onClose }: AddArtistModalProps) => {
       title={<AddArtistTitle />}
     >
       <form onSubmit={submitHandler}>
-        <ArtistForm form={form} />
+        <ArtistForm form={form} associatedUserList={associatedUserList} />
       </form>
     </AddEditModal>
   );

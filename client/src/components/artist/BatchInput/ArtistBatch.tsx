@@ -3,13 +3,16 @@ import { useMutation } from "@tanstack/react-query";
 import { handleArtistCSVExport } from "api/artists.api";
 import { DSButton } from "components/ui/button";
 import { DSNotification } from "components/ui/notifications";
+import type { Role } from "constant/userDefaultValues";
 
-const ArtistBatch = () => {
+const ArtistBatch = ({ role }: { role: Role | undefined }) => {
   const exportMutation = useMutation<Blob, Error, void>({
     mutationFn: async () => {
       return await handleArtistCSVExport();
     },
   });
+
+  if (role != "artist_manager") return null;
 
   const handleExport = async () => {
     try {

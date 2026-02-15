@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Stack, Text, Title } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 
-import type { ArtistSongsResponse } from "types/types";
+import type { ArtistSongsResponse, SongListItem } from "types/types";
 
 import { getSongsByArtistId } from "api/artists.api";
 
@@ -13,6 +13,7 @@ import { DSTable } from "components/ui/table";
 import { ArtistSongsSkeleton } from "components/skeleton/ArtistSongsSkeleton";
 
 import { transformSongs } from "utils/formatSongs";
+import { DSBadge } from "components/ui/Badge";
 
 const SongsByArtist = () => {
   const { artistId } = useParams<{ artistId: string }>();
@@ -73,6 +74,7 @@ const SongsByArtist = () => {
           {
             label: "Genre",
             key: "genre",
+            render: (row: SongListItem) => <DSBadge role={row.genre} />
           },
         ]}
         totalRecords={paginatedSongsData?.pagination.total}
@@ -85,6 +87,7 @@ const SongsByArtist = () => {
         }}
         withPagination
         loading={isLoading}
+        tableName="songsPerArtist"
       />
     </DSCard>
   );

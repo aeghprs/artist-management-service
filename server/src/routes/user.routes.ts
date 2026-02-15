@@ -10,6 +10,7 @@ import { validateRequest } from "../middlewares/validateRequest";
 import { userRegistrationSchema } from "../schemas/auth.schemas";
 
 const router = Router();
+const userController = new UserController();
 
 router.use(verifyJWT);
 
@@ -20,9 +21,13 @@ export const ROLE = {
 } as const;
 export type UserRole = (typeof ROLE)[keyof typeof ROLE];
 
-router.use(verifyAuthorizationRole(ROLE.SUPER_ADMIN));
+router.get(
+  "/getUsersForArtist",
+  verifyAuthorizationRole(ROLE.SUPER_ADMIN, ROLE.ARTIST_MANAGER),
+  userController.getUserWithArtistRole,
+);
 
-const userController = new UserController();
+router.use(verifyAuthorizationRole(ROLE.SUPER_ADMIN));
 
 router.get(
   "/",

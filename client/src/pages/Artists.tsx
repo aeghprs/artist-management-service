@@ -5,7 +5,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type { Artist } from "types/types";
 
-import { fetchArtists, deleteArtist } from "api/artists.api";
+import {
+  fetchArtists,
+  deleteArtist,
+  fetchUsersForArtistRole,
+} from "api/artists.api";
 
 import AddArtistModal from "components/artist/AddArtistModal";
 import EditArtistModal from "components/artist/EditArtistModal";
@@ -20,9 +24,12 @@ import queryClient from "constant/queryClient";
 
 import { formatGender } from "utils/formatGender";
 import ArtistBatch from "components/artist/BatchInput/ArtistBatch";
+import { useAuth } from "contexts/AuthContext";
 
 const Artists = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   const [selectedRow, setSelectedRow] = useState<Artist | null>(null);
@@ -42,11 +49,20 @@ const Artists = () => {
     queryFn: fetchArtists,
   });
 
+  const {
+    data: associatedUserArtistRole,
+    isLoading: isDropdownOptionsLoading,
+  } = useQuery({
+    queryKey: ["fetchUsersForArtist"],
+    queryFn: fetchUsersForArtistRole,
+  });
+
   const mutation = useMutation({
     mutationFn: (id: number) => deleteArtist(id),
     onSuccess: (data) => {
       DSNotification.success(data?.message, "");
       queryClient.invalidateQueries({ queryKey: ["artists"] });
+      queryClient.invalidateQueries({ queryKey: ["fetchUsersForArtist"] });
       setDeleteModalVisible(false);
     },
     onError: (err) => {
@@ -63,7 +79,7 @@ const Artists = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isDropdownOptionsLoading) {
     return <ArtistSkeleton />;
   }
 
@@ -80,23 +96,29 @@ const Artists = () => {
         </div>
 
         <Group>
-        <ArtistBatch />
+          <ArtistBatch role={user?.role} />
 
-        <DSButton
-          leftIcon={"plus"}
-          onClick={() => {
-            setSelectedAction("add");
-            setArtistModalVisible(true);
-          }}
-          size="md"
-        >
-          Add Artists
-        </DSButton>
+          {user?.role && user.role === "artist_manager" && (
+            <DSButton
+              leftIcon={"plus"}
+              onClick={() => {
+                setSelectedAction("add");
+                setArtistModalVisible(true);
+              }}
+              size="md"
+            >
+              Add Artists
+            </DSButton>
+          )}
         </Group>
       </Group>
       <DSTable
         data={paginatedArtistsData}
         columns={[
+          {
+            label: "Associated User Name",
+            key: "associatedUserName",
+          },
           {
             label: "Full Name",
             key: "name",
@@ -132,9 +154,11 @@ const Artists = () => {
           setSelectedRow(row);
           setDeleteModalVisible(true);
         }}
-        onView={(row) =>{
-          if (row?.id) navigate(`${row.id}/songs`)
+        onView={(row) => {
+          if (row?.id) navigate(`${row.id}/songs`);
         }}
+        userRole={user?.role}
+        tableName="artists"
       />
 
       <DeleteModal
@@ -144,17 +168,20 @@ const Artists = () => {
         actionName={`${selectedRow?.name}`}
         deleteHandler={handleDelete}
         isPending={mutation.isPending}
+        note="Note: Deleting this artist will permanently delete all associated songs."
       />
 
       <AddArtistModal
         opened={selectedAction === "add" && artistModalVisible}
         onClose={artistModalHandler}
+        associatedUserArtistRole={associatedUserArtistRole}
       />
 
       <EditArtistModal
         opened={selectedAction === "edit" && artistModalVisible}
         onClose={artistModalHandler}
         artist={selectedRow}
+        associatedUserArtistRole={associatedUserArtistRole}
       />
     </DSCard>
   );

@@ -3,7 +3,6 @@ import { Text } from "@mantine/core";
 
 import { DSModal } from "components/ui/modal";
 
-
 interface DeleteModalProps {
   isPending: boolean;
   actionName: string;
@@ -11,6 +10,7 @@ interface DeleteModalProps {
   deleteModalVisible: boolean;
   onCloseHandler: () => void;
   deleteHandler: () => void;
+  note?: string;
 }
 
 const DeleteModal: React.FC<DeleteModalProps> = ({
@@ -20,8 +20,8 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   deleteModalVisible,
   onCloseHandler,
   deleteHandler,
+  note,
 }) => {
-
   return (
     <div>
       <DSModal
@@ -35,6 +35,12 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
         <Text>
           Are you sure you want to delete {actionName} ? This action can't be
           undone.
+        </Text>
+        <Text
+          color="danger.5"
+          style={{ fontStyle: "italic", fontWeight: 500, fontSize: 14 }}
+        >
+          {note}
         </Text>
       </DSModal>
     </div>

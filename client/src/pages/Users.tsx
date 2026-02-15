@@ -8,7 +8,7 @@ import { UserSkeleton } from "components/skeleton/UserSkeleton";
 import { DSButton } from "components/ui/button";
 import { DSCard } from "components/ui/card";
 import { DSTable } from "components/ui/table";
-import { RoleBadge } from "components/users/RoleBadge";
+import { DSBadge } from "components/ui/Badge";
 import AddUserModal from "components/users/AddUserModal";
 import EditUserModal from "components/users/EditUserModal";
 import DeleteModal from "components/modal/DeleteModal";
@@ -19,8 +19,10 @@ import queryClient from "constant/queryClient";
 import { formatGender } from "utils/formatGender";
 import type { User } from "types/types";
 
+import { useAuth } from "contexts/AuthContext";
 
 const Users = () => {
+  const { user } = useAuth();
   const [limit, setLimit] = useState<number>(10);
   const [page, setPage] = useState<number>(1);
   const [selectedRow, setSelectedRow] = useState<User | null>(null);
@@ -106,7 +108,7 @@ const Users = () => {
           {
             label: "Role",
             key: "role",
-            render: (row) => <RoleBadge role={row.role} />,
+            render: (row) => <DSBadge role={row.role} />,
           },
           { label: "Address", key: "address" },
         ]}
@@ -129,6 +131,8 @@ const Users = () => {
           setSelectedRow(row);
           setDeleteModalVisible(true);
         }}
+        userRole={user?.role}
+        tableName="users"
       />
 
       <DeleteModal

@@ -95,5 +95,6 @@ export const transformToValidatedData = (data: ArtistCSVRow): IBatchArtist => {
     address: data.address.trim(),
     first_release_year: parseInt(data.first_release_year),
     no_of_albums_released: parseInt(data.no_of_albums_released),
+    user_id: parseInt(data.user_id),
   };
 };

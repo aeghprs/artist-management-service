@@ -1,6 +1,6 @@
 import { query, queryOne } from "../config/db";
 import { IRegisterArtist, IUpdateArtist } from "../schemas/artist.schema";
-import { Artist, IBatchArtist } from "../types/artist.types";
+import { Artist, ArtistResult, IBatchArtist } from "../types/artist.types";
 import { PaginatedResponse } from "../types/pagination.types";
 import { normalizeDate } from "../utils/formatDate";
 
@@ -12,12 +12,13 @@ class ArtistService {
 
     const sql = `
       INSERT INTO artists 
-      (name, dob, gender, address, first_release_year, no_of_albums_released)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      (user_id, name, dob, gender, address, first_release_year, no_of_albums_released)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id
     `;
 
     const result = await queryOne<{ id: number }>(sql, [
+      Number(artistData.user_id),
       artistData.name,
       formattedDateOfBirth,
       artistData.gender ?? "o",
@@ -35,26 +36,33 @@ class ArtistService {
   public async getAllArtists(
     page: number,
     limit: number,
-  ): Promise<PaginatedResponse<Artist>> {
+  ): Promise<PaginatedResponse<ArtistResult>> {
     const offset = (page - 1) * limit;
 
     const countResult = await queryOne<{ total: string }>(
-      "SELECT COUNT(*) as total FROM artists WHERE is_active = $1",
-      [true],
+      "SELECT COUNT(*) as total FROM artists",
     );
 
     const total = Number(countResult?.total ?? 0);
 
-    const artists = await query<Artist>(
-      `
-      SELECT id, name, dob, gender, address,
-             first_release_year, no_of_albums_released
-      FROM artists
-      WHERE is_active = $3
-      ORDER BY id DESC
-      LIMIT $1 OFFSET $2
+    const artists = await query<ArtistResult>(
+      `SELECT 
+    a.id,
+    a.name,
+    a.dob,
+    a.gender,
+    a.address,
+    a.first_release_year,
+    a.no_of_albums_released,
+    a.user_id,
+    u.first_name,
+    u.last_name
+  FROM artists a
+  LEFT JOIN users u ON u.id = a.user_id
+ORDER BY a.id DESC
+LIMIT $1 OFFSET $2;
       `,
-      [limit, offset, true],
+      [limit, offset],
     );
 
     return {
@@ -71,8 +79,8 @@ class ArtistService {
   public async getArtistById(id: string): Promise<Artist | null> {
     return queryOne<Artist>(
       `SELECT id, name, dob, gender, address, first_release_year, no_of_albums_released, created_at, updated_at
-       FROM artists WHERE id = $1 AND is_active = $2`,
-      [id, true],
+       FROM artists WHERE id = $1`,
+      [id],
     );
   }
 
@@ -81,8 +89,8 @@ class ArtistService {
     data: IUpdateArtist,
   ): Promise<Artist | null> {
     const existingArtist = await queryOne<Artist>(
-      "SELECT id FROM artists WHERE id = $1 AND is_active = $2",
-      [id, true],
+      "SELECT id FROM artists WHERE id = $1",
+      [id],
     );
     if (!existingArtist) return null;
 
@@ -93,6 +101,10 @@ class ArtistService {
     if (data.name) {
       updates.push(`name = $${paramCount++}`);
       values.push(data.name);
+    }
+    if (data.user_id) {
+      updates.push(`user_id = $${paramCount++}`);
+      values.push(data.user_id);
     }
     if (data.dob !== undefined) {
       updates.push(`dob = $${paramCount++}`);
@@ -108,7 +120,7 @@ class ArtistService {
     }
     if (data.first_release_year !== undefined) {
       updates.push(`first_release_year = $${paramCount++}`);
-      values.push(data.first_release_year || null);
+      values.push(data.first_release_year);
     }
     if (data.no_of_albums_released !== undefined) {
       updates.push(`no_of_albums_released = $${paramCount++}`);
@@ -128,13 +140,21 @@ class ArtistService {
 
   public async deleteArtist(id: string): Promise<boolean> {
     const existingArtist = await queryOne<Artist>(
-      "SELECT id FROM artists WHERE id = $1 AND is_active = $2",
-      [id, true],
+      "SELECT id FROM artists WHERE id = $1",
+      [id],
     );
     if (!existingArtist) return false;
 
-    await query("UPDATE artists SET is_active = $1 WHERE id = $2", [false, id]);
+    await query("DELETE FROM artists WHERE id = $1", [id]);
     return true;
+  }
+
+  public async getArtistByUserId(userId: number): Promise<Artist | null> {
+    return queryOne<Artist>(
+      `SELECT id, user_id, name, dob, gender, address, first_release_year, no_of_albums_released
+       FROM artists WHERE user_id = $1`,
+      [userId],
+    );
   }
 }
 
