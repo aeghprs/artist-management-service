@@ -1,46 +1,48 @@
 import { useState } from "react";
 import { Group, Text, Title } from "@mantine/core";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
+import queryClient from "constant/queryClient";
 import { deleteUser, fetchUsers } from "api/user.api";
 
-import { UserSkeleton } from "components/skeleton/UserSkeleton";
+import { useAuth } from "contexts/AuthContext";
+
+import { getErrorMessage } from "utils/errorHandler";
+import { formatGender } from "utils/formatGender";
+
+import type { User } from "types/types";
+
 import { DSButton } from "components/ui/button";
 import { DSCard } from "components/ui/card";
 import { DSTable } from "components/ui/table";
 import { DSBadge } from "components/ui/Badge";
+import { DSNotification } from "components/ui/notifications";
+
+import { UserSkeleton } from "components/skeleton/UserSkeleton";
 import AddUserModal from "components/users/AddUserModal";
 import EditUserModal from "components/users/EditUserModal";
 import DeleteModal from "components/modal/DeleteModal";
-import { DSNotification } from "components/ui/notifications";
-
-import queryClient from "constant/queryClient";
-
-import { formatGender } from "utils/formatGender";
-import type { User } from "types/types";
-
-import { useAuth } from "contexts/AuthContext";
 
 const Users = () => {
   const { user } = useAuth();
-  const [limit, setLimit] = useState<number>(10);
-  const [page, setPage] = useState<number>(1);
+
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
   const [selectedRow, setSelectedRow] = useState<User | null>(null);
   const [selectedAction, setSelectedAction] = useState<"edit" | "add" | null>(
     null,
   );
-  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [userModalVisible, setUserModalVisible] = useState(false);
 
   const deleteModalHandler = () => setDeleteModalVisible(false);
-
-  const [userModalVisible, setUserModalVisible] = useState<boolean>(false);
-
   const userModalHandler = () => setUserModalVisible(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page, limit],
     queryFn: fetchUsers,
   });
+
   const mutation = useMutation({
     mutationFn: (id: string) => deleteUser(Number(id)),
     onSuccess: (data) => {
@@ -49,10 +51,7 @@ const Users = () => {
       setDeleteModalVisible(false);
     },
     onError: (err) => {
-      DSNotification.error(
-        "",
-        err.response?.data?.message || "Something went wrong",
-      );
+      DSNotification.error(getErrorMessage(err), "");
     },
   });
 
@@ -62,14 +61,13 @@ const Users = () => {
     }
   };
 
-  if (isLoading) {
-    return <UserSkeleton />;
-  }
+  if (isLoading) return <UserSkeleton />;
 
   const { data: paginatedUserData, pagination } = data;
 
   return (
     <DSCard>
+      {/* Header */}
       <Group justify="space-between" mb="lg">
         <div>
           <Title order={3}>Users</Title>
@@ -78,7 +76,7 @@ const Users = () => {
           </Text>
         </div>
         <DSButton
-          leftIcon={"plus"}
+          leftIcon="plus"
           onClick={() => {
             setSelectedAction("add");
             setUserModalVisible(true);
@@ -88,6 +86,8 @@ const Users = () => {
           Add User
         </DSButton>
       </Group>
+
+      {/* Users Table */}
       <DSTable
         data={paginatedUserData}
         columns={[
@@ -102,13 +102,12 @@ const Users = () => {
           {
             label: "Gender",
             key: "gender",
-            render: (row) => formatGender(row.gender),
+            render: (row: User) => formatGender(row.gender),
           },
-
           {
             label: "Role",
             key: "role",
-            render: (row) => <DSBadge role={row.role} />,
+            render: (row: User) => <DSBadge role={row.role} />,
           },
           { label: "Address", key: "address" },
         ]}
@@ -135,20 +134,21 @@ const Users = () => {
         tableName="users"
       />
 
+      {/* Delete Modal */}
       <DeleteModal
         deleteModalVisible={deleteModalVisible}
         onCloseHandler={deleteModalHandler}
-        title={"Delete User"}
+        title="Delete User"
         actionName={`${selectedRow?.first_name} ${selectedRow?.last_name}`}
         deleteHandler={handleDelete}
         isPending={mutation.isPending}
       />
 
+      {/* Add/Edit Modals */}
       <AddUserModal
         opened={selectedAction === "add" && userModalVisible}
         onClose={userModalHandler}
       />
-
       <EditUserModal
         opened={selectedAction === "edit" && userModalVisible}
         onClose={userModalHandler}

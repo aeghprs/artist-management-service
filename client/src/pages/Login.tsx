@@ -1,27 +1,36 @@
 import { Link, useNavigate } from "react-router-dom";
+
 import {
-  Paper,
-  Title,
-  Text,
-  Stack,
-  Group,
-  ThemeIcon,
   Anchor,
+  Group,
+  Paper,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
 } from "@mantine/core";
 import { IconMusic } from "@tabler/icons-react";
-import { DSInput } from "../components/ui/input";
-import { DSPasswordInput } from "../components/ui/passwordInput";
-import { DSButton } from "../components/ui/button";
-import { userLoginSchema } from "../schema/userSchema";
-import { LOGIN_DEFAULT_VALUES } from "../constant/userDefaultValues";
 import { useForm } from "@mantine/form";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "../api/auth.api";
-import type { LoginUser } from "../types/types";
-import { DSNotification } from "../components/ui/notifications";
-import useLocalStorage from "../hook/useLocalStorage";
-import { useLoadUser } from "../hook/useFetchUser";
+
+import { DSInput } from "components/ui/input";
+import { DSPasswordInput } from "components/ui/passwordInput";
+import { DSButton } from "components/ui/button";
+import { DSNotification } from "components/ui/notifications";
+
+import useLocalStorage from "hook/useLocalStorage";
+import { useLoadUser } from "hook/useFetchUser";
+
+import { LOGIN_DEFAULT_VALUES } from "constant/userDefaultValues";
+
+import { userLoginSchema } from "schema/userSchema";
+
+import { login } from "api/auth.api";
+
+import type { LoginUser } from "types/types";
+
+import { getErrorMessage } from "utils/errorHandler";
 
 const Login = () => {
   const { setToken } = useLocalStorage();
@@ -43,7 +52,6 @@ const Login = () => {
       setToken("accessToken", data.data.accessToken);
       setToken("refreshToken", data.data.refreshToken);
 
-
       DSNotification.success(
         data.message,
         `Redirecting to dashboard in 3 seconds...`,
@@ -55,7 +63,7 @@ const Login = () => {
       }, 3000);
     },
     onError: (err) => {
-      DSNotification.error("", err.response.data.message);
+      DSNotification.error(getErrorMessage(err), "");
     },
   });
 

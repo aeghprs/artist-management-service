@@ -5,14 +5,19 @@ import { useMutation } from "@tanstack/react-query";
 
 import type { RegisterSong, Song } from "types/types";
 
-import AddEditModal from "components/modal/AddOrEditModal";
 import SongForm from "./SongForm";
-import { DSNotification } from "components/ui/notifications";
 import { SongUpdateTitle } from "./SongTitle";
 
+import AddEditModal from "components/modal/AddOrEditModal";
+import { DSNotification } from "components/ui/notifications";
+
 import queryClient from "constant/queryClient";
+
 import { songRegistrationSchema } from "schema/songSchema";
+
 import { updateSong } from "api/songs.api";
+
+import { getErrorMessage } from "utils/errorHandler";
 
 interface EditSongModalProps {
   opened: boolean;
@@ -46,7 +51,7 @@ const EditSongModal = ({ opened, onClose, song }: EditSongModalProps) => {
       onClose();
     },
     onError: (err) => {
-      DSNotification.error("", err?.response?.data?.message);
+       DSNotification.error(getErrorMessage(err), "");
     },
   });
 

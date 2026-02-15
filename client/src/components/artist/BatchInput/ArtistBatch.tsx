@@ -1,23 +1,24 @@
+import { useState } from "react";
+
 import { FileButton, Group } from "@mantine/core";
 import { useMutation } from "@tanstack/react-query";
+
 import api from "api/api";
 import { handleArtistCSVExport } from "api/artists.api";
 import { DSButton } from "components/ui/button";
 import { DSNotification } from "components/ui/notifications";
 import queryClient from "constant/queryClient";
 import type { Role } from "constant/userDefaultValues";
-import { useState } from "react";
+
 import { getErrorMessage } from "utils/errorHandler";
 
-const ArtistBatch = ({
-  role,
-  firstName,
-  lastName,
-}: {
-  role: Role | undefined;
-  firstName: string | undefined;
-  lastName: string | undefined;
-}) => {
+type ArtistBatchProps = {
+  role?: Role;
+  firstName?: string;
+  lastName?: string;
+};
+
+const ArtistBatch = ({ role, firstName, lastName }: ArtistBatchProps) => {
   // eslint-disable-next-line react-hooks/purity
   const [inputKey, setInputKey] = useState(Date.now()); // key to reset FileButton
   const exportMutation = useMutation<Blob, Error, void>({
@@ -46,7 +47,7 @@ const ArtistBatch = ({
     },
     onError: (error) => {
       console.error("Upload failed:", error);
-       DSNotification.error(getErrorMessage(error), "");
+      DSNotification.error(getErrorMessage(error), "");
       setInputKey(Date.now());
     },
   });

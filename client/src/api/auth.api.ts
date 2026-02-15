@@ -1,6 +1,8 @@
 import axios from "axios";
-import api from "./api";
+
 import type { User } from "types/types";
+
+import api from "./api";
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 

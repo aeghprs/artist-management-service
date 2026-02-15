@@ -1,4 +1,5 @@
 import type { RegisterArtist } from "types/types";
+
 import api from "./api";
 
 export const getArtists = async (page: number = 1, limit: number = 10) => {

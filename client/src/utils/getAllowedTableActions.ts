@@ -1,15 +1,21 @@
 import { TABLE_PERMISSIONS } from "constant/TablePermissions";
 import type { Role } from "constant/userDefaultValues";
 
-export const getAllowedActions = (
-  table: "users" | "artists" | "songs",
-  role: Role | undefined,
-) => {
-  if (!role) return {}
+type Table = "users" | "artists" | "songs";
+
+export const getAllowedActions = (table: Table, role?: Role) => {
+  if (!role)
+    return {
+      canView: false,
+      canEdit: false,
+      canDelete: false,
+    };
+
   const perms = TABLE_PERMISSIONS[table];
+
   return {
-    canView: perms.canView?.includes(role),
-    canEdit: perms.canEdit?.includes(role),
-    canDelete: perms.canDelete?.includes(role),
+    canView: perms?.canView?.includes(role) ?? false,
+    canEdit: perms?.canEdit?.includes(role) ?? false,
+    canDelete: perms?.canDelete?.includes(role) ?? false,
   };
 };

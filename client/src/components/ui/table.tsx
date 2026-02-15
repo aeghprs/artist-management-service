@@ -33,7 +33,7 @@ interface DSTableProps<T> {
   onView?: (row: T) => void;
   loading?: boolean;
   userRole?: Role | undefined;
-  tableName: "users" | "artists" | "songs" | "songsPerArtist";
+  tableName: "users" | "artists" | "songs" | "songsPerArtist"
 }
 
 export function DSTable<T extends Record<string, any>>({
@@ -94,16 +94,14 @@ export function DSTable<T extends Record<string, any>>({
                     {col.render ? col.render(row) : row[col.key]}
                   </Table.Td>
                 ))}
-                {tableName != "songsPerArtist" && (
-                  <SharedTableActions
-                    table={tableName}
-                    row={row}
-                    currentRole={userRole}
-                    onEdit={onEdit}
-                    onDelete={onDelete}
-                    onView={onView}
-                  />
-                )}
+                {tableName != "songsPerArtist" && <SharedTableActions
+                  table={tableName}
+                  row={row}
+                  currentRole={userRole}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onView={onView}
+                />}
               </Table.Tr>
             ))}
           </Table.Tbody>

@@ -1,9 +1,9 @@
 import { Stack } from "@mantine/core";
-import { DSInput } from "components/ui/input";
+import type { UseFormReturnType } from "@mantine/form";
 
+import { DSInput } from "components/ui/input";
 import { DSSelect } from "components/ui/select";
 
-import type { UseFormReturnType } from "@mantine/form";
 import type { SongFormValues } from "types/types";
 
 interface SongFormProps<T extends SongFormValues> {

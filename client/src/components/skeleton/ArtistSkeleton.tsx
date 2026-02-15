@@ -1,4 +1,5 @@
 import { Card, Flex, Group, Skeleton, Stack } from "@mantine/core";
+
 import { DSTableSkeleton } from "./tableSkeleton";
 
 export const ArtistSkeleton: React.FC = () => {
