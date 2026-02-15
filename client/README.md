@@ -1,75 +1,130 @@
-# React + TypeScript + Vite
+# Artist Management System (AMS) - Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for managing artists, songs, and users in the music industry. Built with **React**, **TypeScript**, **Vite**, and **Mantine UI**.
 
-Currently, two official plugins are available:
+## 📋 Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Before running the project, ensure you have:
 
-## React Compiler
+- **Node.js** (v20 or higher)
+- **npm**
+- A running backend API (see the server README for setup instructions)
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## 🏃‍♂️ Installation & Setup
 
-Note: This will impact Vite dev & build performances.
+1. Clone the repository:
 
-## Expanding the ESLint configuration
+   ```bash
+   git clone <repository-url>
+   cd artist-management-system/client
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+   ```
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Install dependencies**
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+   ```bash
+   npm install
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+3. **Configure environment variables**
+
+   Create a `.env` file in the root directory:
+
+   ```env
+   VITE_API_URL=http://localhost:3000
+   ```
+
+   Replace `http://localhost:3000` with your actual backend API URL with port that you have used.
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+The client will start on `http://localhost:5173`
+
+## 📁 Project Structure
+
+```
+client/
+├── public/                  # Static assets
+├── src/
+│   ├── api/                 # API service functions
+│   │   ├── api.ts          # Axios configuration & interceptors
+│   │   ├── artists.api.ts  # Artist-related API calls
+│   │   ├── auth.api.ts     # Authentication API calls
+│   │   └── user.api.ts     # User-related API calls
+│   ├── components/         # Reusable UI components
+│   │   ├── artist/        # Artist-specific components
+│   │   ├── modal/         # Modal components
+│   │   ├── routes/        # Route protection components
+│   │   ├── skeleton/      # Loading skeleton components
+│   │   ├── songs/         # Song-related components
+│   │   ├── ui/            # Base UI components
+│   │   └── users/         # User-specific components
+│   ├── contexts/          # React contexts
+│   │   └── AuthContext.tsx # Authentication context
+│   ├── constant/          # Constants and configurations
+│   ├── hook/              # Custom React hooks
+│   ├── layout/            # Layout components
+│   ├── pages/             # Page components
+│   ├── schema/            # Zod validation schemas
+│   ├── types/             # TypeScript type definitions
+│   └── utils/             # Utility functions
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── eslint.config.js
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🔗 API Endpoints
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The client expects the following backend endpoints:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+| Method | Endpoint                   | Description               | Access                              |
+| ------ | -------------------------- | ------------------------- | ----------------------------------- |
+| POST   | `/auth/login`              | User login                | Public                              |
+| POST   | `/auth/register`           | User registration         | Public                              |
+| POST   | `/auth/refresh`            | Refresh access token      | Public                              |
+| GET    | `/auth/me`                 | Get current user          | Protected                           |
+| GET    | `/users`                   | List all users            | Super Admin                         |
+| POST   | `/users/new`               | Create new user           | Super Admin                         |
+| PUT    | `/users/:id`               | Update user               | Super Admin                         |
+| DELETE | `/users/:id`               | Delete user               | Super Admin                         |
+| GET    | `/artist`                  | List all artists          | Artist Manager, Super Admin         |
+| POST   | `/artist/new`              | Create new artist         | Artist Manager                      |
+| PUT    | `/artist/:id`              | Update artist             | Artist Manager                      |
+| DELETE | `/artist/:id`              | Delete artist             | Artist Manager                      |
+| GET    | `/artist/export`           | Export artist csv         | Artist Manager                      |
+| POST   | `/artist/import`           | Import artist csv         | Artist Manager                      |
+| GET    | `/users/getUsersForArtist` | Get users for artist role | Artist Manager                      |
+| GET    | `/songs/artist/:id`        | Get songs by artist       | Artist Manager, Artist, Super Admin |
+| POST   | `/songs/artist/:id`        | Create new song by artist | Artist                              |
+| PUT    | `/songs/:id`               | Get songs by artist       | Artist                              |
+| DELETE | `/songs/:id`               | Get songs by artist       | Artist                              |
+
+## 🎯 Key Features Details
+
+### Token Refresh Mechanism
+
+The application automatically handles JWT token expiration:
+
+- Intercepts 401 responses
+- Attempts to refresh using the refresh token
+- Stores new tokens in localStorage
+- Retries the original request
+
+### Form Validation
+
+All forms use Zod schemas with Mantine Form integration:
+
+- Real-time validation feedback
+- Type-safe form handling
+- Error messages displayed inline
+
+### Authentication Issues, IF ANY
+
+- Clear browser localStorage
+- Check that the API URL is correct in your `.env` file
+- Ensure the backend server is running
