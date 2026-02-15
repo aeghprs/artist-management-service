@@ -20,13 +20,17 @@ interface User {
   last_name: string;
   email: string;
   role: UserRole;
+  isArtistAssociated: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 interface AuthContextType {
   user: User | null;
   setUser: Dispatch<React.SetStateAction<User | null>>;
   isAuthenticated: boolean;
-   isLoading: boolean;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,8 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { getToken } = useLocalStorage();
 
-
-    const fetchUser = async () => {
+  const fetchUser = async () => {
     try {
       const res = await getUserData();
       if (res.success) {
@@ -74,9 +77,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     fetchUser();
   }, [getToken]);
 
-
   return (
-    <AuthContext.Provider value={{ user, setUser, isAuthenticated: !!user, isLoading, }}>
+    <AuthContext.Provider
+      value={{ user, setUser, isAuthenticated: !!user, isLoading }}
+    >
       {children}
     </AuthContext.Provider>
   );

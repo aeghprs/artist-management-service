@@ -43,9 +43,10 @@ export interface Song {
   title: string;
   album_name: string;
   genre: Genre;
-  created_at: string;
-  updated_at: string;
 }
+
+export type RegisterSong = Omit<Song, "id" | "artist_id">;
+export type SongFormValues = RegisterSong;
 
 export interface ValidationError {
   field: string;
