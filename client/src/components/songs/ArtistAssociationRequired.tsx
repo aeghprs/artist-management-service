@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
+
 import { Title, Text, Stack } from "@mantine/core";
+
 import { useAuth } from "contexts/AuthContext";
 
 const ArtistAssociationRequired = () => {

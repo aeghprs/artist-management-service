@@ -1,18 +1,24 @@
 import { useForm } from "@mantine/form";
 import { zodResolver } from "mantine-form-zod-resolver";
 import { useMutation } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 
 import type { RegisterSong, Song, ValidationError } from "types/types";
 
 import SongForm from "./SongForm";
 import { SongRegisterTitle } from "./SongTitle";
+
 import AddEditModal from "components/modal/AddOrEditModal";
 import { DSNotification } from "components/ui/notifications";
 
 import { SONG_VALUES } from "constant/songDefaultValue";
 import queryClient from "constant/queryClient";
+
 import { songRegistrationSchema } from "schema/songSchema";
+
 import { createNewSong } from "api/songs.api";
+
+import { getErrorMessage } from "utils/errorHandler";
 
 interface AddSongModalProps {
   opened: boolean;
@@ -38,19 +44,25 @@ const AddSongModal = ({ opened, onClose, artistId }: AddSongModalProps) => {
       form.reset();
       onClose();
     },
-    onError: (err) => {
-      const errorData = err?.response?.data;
+    onError: (err: unknown) => {
+      const axiosError = err as AxiosError<{
+        message?: string;
+        errors?: ValidationError[];
+      }>;
 
-      if (errorData?.errors) {
-        errorData.errors.forEach((validationError: ValidationError) => {
+      // If response data exists and has validation errors
+      const errorData = axiosError.response?.data;
+      if (errorData?.errors && Array.isArray(errorData.errors)) {
+        errorData.errors.forEach((validationError) => {
           DSNotification.error(
             validationError.field.toUpperCase(),
             validationError.message,
           );
         });
-      } else {
-        DSNotification.error("", errorData?.message);
+        return;
       }
+
+      DSNotification.error(getErrorMessage(err), "");
     },
   });
 

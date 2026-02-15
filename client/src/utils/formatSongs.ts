@@ -1,10 +1,7 @@
 import type { ArtistSongsResponse, SongListItem } from "types/types";
 
-export const transformSongs = (
-  data: ArtistSongsResponse | undefined,
-): SongListItem[] | [] => {
-  if (!data) return [];
-    console.log(data)
+export const transformSongs = (data?: ArtistSongsResponse): SongListItem[] => {
+  if (!data?.songs?.length) return [];
 
   return data.songs.map((song) => ({
     artist_name: data.artist.name,
